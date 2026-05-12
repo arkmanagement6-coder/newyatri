@@ -102,7 +102,7 @@
                         <label>Shipping Address</label>
                         <textarea rows="3" placeholder="Flat No, Street, Landmark" required></textarea>
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="checkout-form-grid">
                         <div class="form-group">
                             <label>City</label>
                             <input type="text" placeholder="New Delhi" required>
@@ -113,6 +113,19 @@
                         </div>
                     </div>
                 </form>
+
+                <style>
+                    .checkout-form-grid {
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 20px;
+                    }
+                    @media (max-width: 480px) {
+                        .checkout-form-grid {
+                            grid-template-columns: 1fr;
+                        }
+                    }
+                </style>
 
                 <h3 style="margin-top: 30px;">Payment Method</h3>
                 <div class="payment-methods">

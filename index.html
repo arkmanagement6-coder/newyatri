@@ -47,10 +47,38 @@
         .hero-content h1 {
             font-size: 48px;
             margin-bottom: 20px;
+            line-height: 1.2;
         }
         .hero-content p {
             font-size: 20px;
             margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                height: 500px;
+            }
+            .hero-content {
+                margin-left: 5%;
+                margin-right: 5%;
+                padding: 30px;
+                text-align: center;
+            }
+            .hero-content h1 {
+                font-size: 32px;
+            }
+            .hero-content p {
+                font-size: 16px;
+            }
+            .hero-btns {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .hero-btns .btn {
+                margin-left: 0 !important;
+                width: 100%;
+            }
         }
 
         /* Category Section */
@@ -90,6 +118,15 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 30px;
+        }
+        @media (max-width: 480px) {
+            .product-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .category-grid {
+                grid-template-columns: 1fr;
+            }
         }
         .product-card {
             background: var(--white);
@@ -165,6 +202,14 @@
             padding: 100px 20px;
             border-radius: 20px;
             margin: 50px 0;
+        }
+        @media (max-width: 768px) {
+            .offer-banner {
+                padding: 60px 20px;
+            }
+            .offer-banner h2 {
+                font-size: 24px;
+            }
         }
 
         /* Why Choose Us */

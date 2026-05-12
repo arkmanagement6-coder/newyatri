@@ -53,6 +53,17 @@
             max-width: 400px;
             margin-left: auto;
         }
+        @media (max-width: 768px) {
+            .cart-summary {
+                margin-left: 0;
+                max-width: 100%;
+            }
+            .cart-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
         .summary-row {
             display: flex;
             justify-content: space-between;
@@ -72,7 +83,7 @@
         <div class="container">
             <nav>
                 <a href="index.html" class="logo">Yatri <span>Luggege</span></a>
-                <div class="nav-icons">
+                <div class="nav-icons"><i class="fas fa-bars menu-btn"></i>
                     <a href="cart.html" class="cart-icon">
                         <i class="fas fa-shopping-cart"></i>
                         <span class="cart-count">0</span>
@@ -108,17 +119,18 @@
             }
 
             let html = `
-                <table class="cart-table">
-                    <thead>
-                        <tr>
-                            <th>Product</th>
-                            <th>Price</th>
-                            <th>Quantity</th>
-                            <th>Subtotal</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                <div class="table-responsive">
+                    <table class="cart-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Subtotal</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
             `;
 
             let subtotal = 0;
@@ -145,7 +157,8 @@
 
             html += `
                     </tbody>
-                </table>
+                    </table>
+                </div>
                 <div class="cart-summary">
                     <div class="summary-row">
                         <span>Subtotal</span>
