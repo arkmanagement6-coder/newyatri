@@ -81,6 +81,31 @@
             width: 500px;
             max-width: 90%;
         }
+        @media (max-width: 768px) {
+            .admin-layout {
+                grid-template-columns: 1fr;
+            }
+            .admin-sidebar {
+                padding: 20px 0;
+            }
+            .admin-nav {
+                display: flex;
+                overflow-x: auto;
+                background: rgba(0,0,0,0.1);
+            }
+            .admin-nav li {
+                padding: 15px 20px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            .admin-main {
+                padding: 20px;
+            }
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -103,40 +128,44 @@
                     <button class="btn btn-primary" onclick="openProductModal()">+ Add New Product</button>
                 </div>
                 <div class="admin-card">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Image</th>
-                                <th>Name</th>
-                                <th>Category</th>
-                                <th>Price</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-product-list">
-                            <!-- JS Loaded -->
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Name</th>
+                                    <th>Category</th>
+                                    <th>Price</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-product-list">
+                                <!-- JS Loaded -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
 
             <section id="orders-sec" class="admin-section" style="display: none;">
                 <h2>Customer Orders</h2>
                 <div class="admin-card">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Date</th>
-                                <th>Items</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-order-list">
-                            <!-- JS Loaded -->
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Date</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-order-list">
+                                <!-- JS Loaded -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
         </main>

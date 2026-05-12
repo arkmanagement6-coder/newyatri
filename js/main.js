@@ -28,6 +28,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Close menu on overlay click
     overlay.addEventListener('click', () => {
+        closeMenu();
+    });
+
+    // Close menu on link click
+    navLinks.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            closeMenu();
+        });
+    });
+
+    function closeMenu() {
         navLinks.classList.remove('active');
         overlay.classList.remove('active');
         const icon = menuBtn.querySelector('i');
@@ -35,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
             icon.classList.add('fa-bars');
             icon.classList.remove('fa-times');
         }
-    });
+    }
 
     // Scroll Header Effect
     const header = document.querySelector('header');
