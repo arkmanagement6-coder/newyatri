@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | Yatri Luggege</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .checkout-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 40px;
+            margin-top: 40px;
+        }
+        .checkout-form {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: var(--shadow-sm);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+        .order-summary {
+            background: var(--accent-color);
+            padding: 30px;
+            border-radius: 15px;
+            height: fit-content;
+        }
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        .payment-methods {
+            margin-top: 30px;
+        }
+        .payment-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            background: white;
+        }
+        .payment-option.active {
+            border-color: var(--secondary-color);
+            background: rgba(255, 122, 0, 0.05);
+        }
+        @media (max-width: 768px) {
+            .checkout-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="index.html" class="logo">Yatri <span>Luggege</span></a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="container section-padding">
+        <h1>Checkout</h1>
+        <div class="checkout-grid">
+            <div class="checkout-form">
+                <h3>Shipping Details</h3>
+                <form id="checkout-form">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" placeholder="John Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" placeholder="Enter your phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" placeholder="john@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Shipping Address</label>
+                        <textarea rows="3" placeholder="Flat No, Street, Landmark" required></textarea>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" placeholder="New Delhi" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Pincode</label>
+                            <input type="text" placeholder="110001" required>
+                        </div>
+                    </div>
+                </form>
+
+                <h3 style="margin-top: 30px;">Payment Method</h3>
+                <div class="payment-methods">
+                    <div class="payment-option active">
+                        <input type="radio" name="payment" checked>
+                        <i class="fas fa-university"></i>
+                        <span>UPI / Net Banking</span>
+                    </div>
+                    <div class="payment-option">
+                        <input type="radio" name="payment">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Credit / Debit Card</span>
+                    </div>
+                    <div class="payment-option">
+                        <input type="radio" name="payment">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>Cash on Delivery (COD)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-summary">
+                <h3>Order Summary</h3>
+                <div id="summary-items" style="margin-top: 20px; border-bottom: 1px solid #ddd; padding-bottom: 20px;">
+                    <!-- Items via JS -->
+                </div>
+                <div style="margin-top: 20px;">
+                    <div class="summary-item">
+                        <span>Subtotal</span>
+                        <span id="subtotal">₹0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Shipping</span>
+                        <span style="color: var(--success);">Free</span>
+                    </div>
+                    <div class="summary-item" style="font-weight: 700; font-size: 18px; margin-top: 20px; color: var(--primary-color);">
+                        <span>Total Amount</span>
+                        <span id="total">₹0</span>
+                    </div>
+                </div>
+                <button type="submit" form="checkout-form" class="btn btn-secondary" style="width: 100%; margin-top: 30px; padding: 15px;">Place Order</button>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/db.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cart = JSON.parse(localStorage.getItem('yatri_cart')) || [];
+            if (cart.length === 0) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const summaryContainer = document.getElementById('summary-items');
+            const subtotalEl = document.getElementById('subtotal');
+            const totalEl = document.getElementById('total');
+
+            let total = 0;
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                summaryContainer.innerHTML += `
+                    <div class="summary-item">
+                        <span>${item.name} x ${item.quantity}</span>
+                        <span>${formatPrice(itemTotal)}</span>
+                    </div>
+                `;
+            });
+
+            subtotalEl.textContent = formatPrice(total);
+            totalEl.textContent = formatPrice(total);
+
+            // Handle Form Submit
+            document.getElementById('checkout-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const orders = JSON.parse(localStorage.getItem('yatri_orders')) || [];
+                const newOrder = {
+                    id: Date.now(),
+                    date: new Date().toLocaleDateString(),
+                    items: cart,
+                    total: total,
+                    status: 'Pending'
+                };
+                orders.push(newOrder);
+                localStorage.setItem('yatri_orders', JSON.stringify(orders));
+                localStorage.setItem('yatri_cart', JSON.stringify([]));
+                
+                alert("Order Placed Successfully! Your Order ID is #" + newOrder.id);
+                window.location.href = 'index.html';
+            });
+        });
+    </script>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo" style="color: white;">Yatri <span>Luggege</span></a>
+                    <p>Your trusted travel partner for premium quality bags and suitcases.</p>
+
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="products.html">Products</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Legal Policies</h4>
+                    <ul>
+                        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="terms-conditions.html">Terms & Conditions</a></li>
+                        <li><a href="shipping-policy.html">Shipping Policy</a></li>
+                        <li><a href="refund-policy.html">Refund Policy</a></li>
+                        <li><a href="disclaimer.html">Disclaimer</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contact Us</h4>
+                    <p><i class="fas fa-envelope"></i> info@yatri-luggege.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Yatri Luggege. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | Yatri Luggege - Travel Smart, Travel Confident</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .about-hero {
+            background: linear-gradient(rgba(10, 31, 68, 0.8), rgba(10, 31, 68, 0.8)), url('assets/hero/banner-1.png');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 100px 0;
+            text-align: center;
+        }
+        .about-section {
+            padding: 80px 0;
+        }
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+        .about-content h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 32px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .about-content p {
+            margin-bottom: 20px;
+            font-size: 17px;
+            color: var(--text-light);
+            text-align: justify;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .stat-card {
+            background: var(--accent-color);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            transition: var(--transition);
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: white;
+            box-shadow: var(--shadow-md);
+        }
+        .stat-card i {
+            font-size: 30px;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+        .mission-vision {
+            background: var(--primary-color);
+            color: white;
+            padding: 80px 0;
+        }
+        .mv-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+        }
+        .mv-card h2 { color: var(--secondary-color); margin-bottom: 20px; }
+        .mv-card ul { list-style: none; }
+        .mv-card ul li { margin-bottom: 12px; display: flex; gap: 10px; align-items: flex-start; opacity: 0.9; }
+        .mv-card ul li::before { content: '✓'; color: var(--secondary-color); font-weight: bold; }
+
+        .offerings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .offering-card {
+            border: 1px solid #eee;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            transition: var(--transition);
+        }
+        .offering-card:hover {
+            border-color: var(--secondary-color);
+            box-shadow: var(--shadow-sm);
+        }
+        .offering-card i { font-size: 40px; color: var(--primary-color); margin-bottom: 20px; }
+
+        .closing-banner {
+            background: var(--secondary-color);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+            border-radius: 20px;
+            margin: 80px 0;
+        }
+        .closing-banner h2 { font-size: 36px; margin-bottom: 10px; }
+
+        @media (max-width: 768px) {
+            .about-grid, .mv-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="index.html" class="logo">Yatri <span>Luggege</span></a>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="products.html">Products</a></li>
+                    <li><a href="about.html" class="active">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+                <div class="nav-icons">
+                    <a href="cart.html" class="cart-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count">0</span>
+                    </a>
+                    <i class="fas fa-bars menu-btn"></i>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <section class="about-hero">
+        <div class="container">
+            <h1>About Yatri Luggege</h1>
+            <p>Durable. Stylish. Reliable. Designed for your ultimate journey.</p>
+        </div>
+    </section>
+
+    <section class="about-section">
+        <div class="container">
+            <div class="about-grid">
+                <div class="about-content">
+                    <h2>✨ Who We Are</h2>
+                    <p>At Yatri Luggege, we believe that every journey deserves the perfect companion. We are a modern travel gear brand dedicated to providing high-quality, durable, and stylish Luggege solutions for today’s travelers. Yatri Luggege is committed to making your journey smooth, secure, and comfortable.</p>
+                    <p>We understand that Luggege is not just a bag—it is a part of your travel experience. That’s why we focus on creating products that combine innovation, functionality, and premium design.</p>
+                </div>
+                <div class="about-image">
+                    <img src="assets/hero/banner-1.png" alt="Travel Luggege" style="border-radius: 20px; box-shadow: var(--shadow-lg);">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="about-section" style="background: var(--accent-color);">
+        <div class="container">
+            <div class="about-content" style="max-width: 800px; margin: 0 auto; text-align: center;">
+                <h2>🌍 Our Story</h2>
+                <p>Yatri Luggege was created with a simple idea—to make travel easier and more reliable for everyone. We noticed that many travelers struggle with low-quality bags that don’t last or lack smart features. With this vision, we built a brand that focuses on quality craftsmanship, smart storage solutions, and modern aesthetics.</p>
+                <p>From trolley bags to backpacks and travel accessories, every product is designed keeping real travel needs in mind.</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i class="fas fa-award"></i>
+                    <h3>Premium Quality</h3>
+                    <p>Materials picked for durability</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-palette"></i>
+                    <h3>Stylish Designs</h3>
+                    <p>Modern aesthetics for travelers</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-users"></i>
+                    <h3>Customer Centric</h3>
+                    <p>Designed for real needs</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="mission-vision">
+        <div class="container">
+            <div class="mv-grid">
+                <div class="mv-card">
+                    <h2>🎯 Our Mission</h2>
+                    <p style="margin-bottom: 20px;">Our mission is to provide durable, affordable, and stylish Luggege that enhances every travel experience.</p>
+                    <ul>
+                        <li>Deliver high-quality products at competitive prices</li>
+                        <li>Offer functional and user-friendly designs</li>
+                        <li>Ensure customer satisfaction with every purchase</li>
+                        <li>Make travel stress-free and enjoyable for everyone</li>
+                    </ul>
+                </div>
+                <div class="mv-card">
+                    <h2>🚀 Our Vision</h2>
+                    <p style="margin-bottom: 20px;">Our vision is to become one of India’s most trusted and preferred Luggege brands, known for quality, innovation, and reliability.</p>
+                    <ul>
+                        <li>Build a brand that travelers can trust worldwide</li>
+                        <li>Continuously innovate with modern travel solutions</li>
+                        <li>Expand our presence across India and global markets</li>
+                        <li>Set new standards in the Luggege and travel industry</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="about-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>💼 What We Offer</h2>
+                <p>Premium travel gear for every kind of journey</p>
+            </div>
+            <div class="offerings-grid">
+                <div class="offering-card">
+                    <i class="fas fa-suitcase-rolling"></i>
+                    <h3>Trolley Bags</h3>
+                    <p>Hard & Soft Luggege</p>
+                </div>
+                <div class="offering-card">
+                    <i class="fas fa-backpack"></i>
+                    <h3>Backpacks</h3>
+                    <p>& Laptop Bags</p>
+                </div>
+                <div class="offering-card">
+                    <i class="fas fa-briefcase"></i>
+                    <h3>Duffel Bags</h3>
+                    <p>For Travel & Gym</p>
+                </div>
+                <div class="offering-card">
+                    <i class="fas fa-tags"></i>
+                    <h3>Accessories</h3>
+                    <p>Smart Travel Gear</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="about-section" style="background: var(--primary-color); color: white;">
+        <div class="container">
+            <div class="about-grid">
+                <div class="about-content">
+                    <h2 style="color: var(--secondary-color);">🤝 Our Commitment</h2>
+                    <p style="color: white;">At Yatri Luggege, we are committed to delivering not just products, but a complete travel experience. From browsing our website to receiving your order, we ensure a smooth and satisfying journey.</p>
+                    
+                    <h2 style="color: var(--secondary-color); margin-top: 40px;">📞 Contact Us</h2>
+                    <p style="color: white;"><i class="fas fa-envelope" style="color: var(--secondary-color); margin-right: 10px;"></i> Email: info@yatri-luggege.com</p>
+                </div>
+                <div class="about-image">
+                    <div style="background: white; padding: 40px; border-radius: 20px; color: var(--primary-color);">
+                        <h3 style="margin-bottom: 20px;">⭐ Why Choose Us</h3>
+                        <ul style="list-style: none;">
+                            <li style="margin-bottom: 10px;"><i class="fas fa-check" style="color: var(--secondary-color); margin-right: 10px;"></i> Premium Quality Materials</li>
+                            <li style="margin-bottom: 10px;"><i class="fas fa-check" style="color: var(--secondary-color); margin-right: 10px;"></i> Modern & Stylish Designs</li>
+                            <li style="margin-bottom: 10px;"><i class="fas fa-check" style="color: var(--secondary-color); margin-right: 10px;"></i> Lightweight & Durable Build</li>
+                            <li style="margin-bottom: 10px;"><i class="fas fa-check" style="color: var(--secondary-color); margin-right: 10px;"></i> Affordable Pricing</li>
+                            <li style="margin-bottom: 10px;"><i class="fas fa-check" style="color: var(--secondary-color); margin-right: 10px;"></i> Customer-Centric Approach</li>
+                            <li style="margin-bottom: 10px;"><i class="fas fa-check" style="color: var(--secondary-color); margin-right: 10px;"></i> Secure & Easy Online Shopping</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="closing-banner">
+            <h2>Yatri Luggege – Travel Smart, Travel Confident. ✈️</h2>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo" style="color: white;">Yatri <span>Luggege</span></a>
+                    <p>Your trusted travel partner for premium quality bags and suitcases.</p>
+
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="products.html">Products</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Legal Policies</h4>
+                    <ul>
+                        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="terms-conditions.html">Terms & Conditions</a></li>
+                        <li><a href="shipping-policy.html">Shipping Policy</a></li>
+                        <li><a href="refund-policy.html">Refund Policy</a></li>
+                        <li><a href="disclaimer.html">Disclaimer</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contact Us</h4>
+                    <p><i class="fas fa-envelope"></i> info@yatri-luggege.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Yatri Luggege. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/db.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

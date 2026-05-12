@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart | Yatri Luggege</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .cart-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+        .cart-table th {
+            text-align: left;
+            padding: 15px;
+            background: var(--accent-color);
+            color: var(--primary-color);
+        }
+        .cart-table td {
+            padding: 20px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .cart-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .cart-item img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        .cart-qty-input {
+            width: 60px;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .remove-btn {
+            color: var(--error);
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .cart-summary {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: var(--shadow-md);
+            margin-top: 50px;
+            max-width: 400px;
+            margin-left: auto;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .summary-total {
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+            font-weight: 700;
+            font-size: 20px;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="index.html" class="logo">Yatri <span>Luggege</span></a>
+                <div class="nav-icons">
+                    <a href="cart.html" class="cart-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count">0</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <section class="container section-padding">
+        <h1>Your Shopping Cart</h1>
+        <div id="cart-content">
+            <!-- Loaded via JS -->
+        </div>
+    </section>
+
+    <script src="js/db.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        function renderCart() {
+            const cart = JSON.parse(localStorage.getItem('yatri_cart')) || [];
+            const container = document.getElementById('cart-content');
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 100px 0;">
+                        <i class="fas fa-shopping-basket" style="font-size: 60px; color: #ddd; margin-bottom: 20px;"></i>
+                        <h2>Your cart is empty</h2>
+                        <a href="products.html" class="btn btn-primary" style="margin-top: 20px;">Start Shopping</a>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <table class="cart-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Subtotal</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            let subtotal = 0;
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+                html += `
+                    <tr>
+                        <td>
+                            <div class="cart-item">
+                                <img src="${item.image}" alt="${item.name}">
+                                <span>${item.name}</span>
+                            </div>
+                        </td>
+                        <td>${formatPrice(item.price)}</td>
+                        <td>
+                            <input type="number" value="${item.quantity}" min="1" class="cart-qty-input" onchange="updateQty(${index}, this.value)">
+                        </td>
+                        <td>${formatPrice(itemTotal)}</td>
+                        <td><i class="fas fa-trash-alt remove-btn" onclick="removeItem(${index})"></i></td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+                <div class="cart-summary">
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span>${formatPrice(subtotal)}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Shipping</span>
+                        <span style="color: var(--success);">Free</span>
+                    </div>
+                    <div class="summary-row summary-total">
+                        <span>Total</span>
+                        <span>${formatPrice(subtotal)}</span>
+                    </div>
+                    <a href="checkout.html" class="btn btn-secondary" style="width: 100%; margin-top: 20px;">Proceed to Checkout</a>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function updateQty(index, qty) {
+            const cart = JSON.parse(localStorage.getItem('yatri_cart'));
+            cart[index].quantity = parseInt(qty);
+            localStorage.setItem('yatri_cart', JSON.stringify(cart));
+            renderCart();
+            updateCartCount();
+        }
+
+        function removeItem(index) {
+            const cart = JSON.parse(localStorage.getItem('yatri_cart'));
+            cart.splice(index, 1);
+            localStorage.setItem('yatri_cart', JSON.stringify(cart));
+            renderCart();
+            updateCartCount();
+        }
+
+        document.addEventListener('DOMContentLoaded', renderCart);
+    </script>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo" style="color: white;">Yatri <span>Luggege</span></a>
+                    <p>Your trusted travel partner for premium quality bags and suitcases.</p>
+
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="products.html">Products</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Legal Policies</h4>
+                    <ul>
+                        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="terms-conditions.html">Terms & Conditions</a></li>
+                        <li><a href="shipping-policy.html">Shipping Policy</a></li>
+                        <li><a href="refund-policy.html">Refund Policy</a></li>
+                        <li><a href="disclaimer.html">Disclaimer</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contact Us</h4>
+                    <p><i class="fas fa-envelope"></i> info@yatri-luggege.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Yatri Luggege. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

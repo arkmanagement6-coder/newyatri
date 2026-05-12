@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Yatri Luggege</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+        .admin-sidebar {
+            background: var(--primary-color);
+            color: white;
+            padding: 30px 0;
+        }
+        .admin-nav li {
+            padding: 15px 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .admin-nav li:hover, .admin-nav li.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--secondary-color);
+        }
+        .admin-main {
+            background: #f8f9fa;
+            padding: 40px;
+        }
+        .admin-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 30px;
+        }
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .admin-table th {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 2px solid #eee;
+        }
+        .admin-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-shipped { background: #d4edda; color: #155724; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 500px;
+            max-width: 90%;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div style="padding: 0 30px 30px;">
+                <a href="index.html" class="logo" style="color: white;">Yatri <span>Admin</span></a>
+            </div>
+            <ul class="admin-nav">
+                <li class="active" onclick="showSection('products-sec')"><i class="fas fa-box"></i> Products</li>
+                <li onclick="showSection('orders-sec')"><i class="fas fa-shopping-bag"></i> Orders</li>
+                <li onclick="location.href='index.html'"><i class="fas fa-external-link-alt"></i> View Site</li>
+            </ul>
+        </aside>
+
+        <main class="admin-main">
+            <section id="products-sec" class="admin-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                    <h2>Manage Products</h2>
+                    <button class="btn btn-primary" onclick="openProductModal()">+ Add New Product</button>
+                </div>
+                <div class="admin-card">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-product-list">
+                            <!-- JS Loaded -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="orders-sec" class="admin-section" style="display: none;">
+                <h2>Customer Orders</h2>
+                <div class="admin-card">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Items</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-order-list">
+                            <!-- JS Loaded -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <h3>Add/Edit Product</h3>
+            <form id="product-form" style="margin-top: 20px;">
+                <input type="hidden" id="edit-id">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label>Product Name</label>
+                    <input type="text" id="p-name" required style="width: 100%; padding: 10px; border: 1px solid #ddd;">
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label>Category</label>
+                    <select id="p-cat" required style="width: 100%; padding: 10px; border: 1px solid #ddd;">
+                        <option value="Trolley Bags">Trolley Bags</option>
+                        <option value="Backpacks">Backpacks</option>
+                        <option value="Travel Duffel Bags">Travel Duffel Bags</option>
+                        <option value="Laptop Bags">Laptop Bags</option>
+                    </select>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div class="form-group">
+                        <label>Price (₹)</label>
+                        <input type="number" id="p-price" required style="width: 100%; padding: 10px; border: 1px solid #ddd;">
+                    </div>
+                    <div class="form-group">
+                        <label>Original Price (₹)</label>
+                        <input type="number" id="p-old-price" style="width: 100%; padding: 10px; border: 1px solid #ddd;">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label>Image Path</label>
+                    <input type="text" id="p-img" value="assets/products/trolley-1.jpg" style="width: 100%; padding: 10px; border: 1px solid #ddd;">
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Save Product</button>
+                    <button type="button" class="btn" style="background: #eee;" onclick="closeProductModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/db.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        function showSection(id) {
+            document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
+            document.getElementById(id).style.display = 'block';
+            document.querySelectorAll('.admin-nav li').forEach(li => li.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            if (id === 'products-sec') renderAdminProducts();
+            if (id === 'orders-sec') renderAdminOrders();
+        }
+
+        function renderAdminProducts() {
+            const products = getProducts();
+            const list = document.getElementById('admin-product-list');
+            list.innerHTML = '';
+            products.forEach(p => {
+                list.innerHTML += `
+                    <tr>
+                        <td><img src="${p.image}" style="width: 50px; border-radius: 5px;"></td>
+                        <td>${p.name}</td>
+                        <td>${p.category}</td>
+                        <td>${formatPrice(p.price)}</td>
+                        <td>
+                            <i class="fas fa-edit" style="color: var(--primary-color); cursor: pointer; margin-right: 15px;" onclick="editProduct(${p.id})"></i>
+                            <i class="fas fa-trash-alt" style="color: var(--error); cursor: pointer;" onclick="deleteProduct(${p.id})"></i>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderAdminOrders() {
+            const orders = JSON.parse(localStorage.getItem('yatri_orders')) || [];
+            const list = document.getElementById('admin-order-list');
+            list.innerHTML = '';
+            orders.forEach(o => {
+                list.innerHTML += `
+                    <tr>
+                        <td>#${o.id}</td>
+                        <td>${o.date}</td>
+                        <td>${o.items.length} items</td>
+                        <td>${formatPrice(o.total)}</td>
+                        <td><span class="status-badge status-pending">${o.status}</span></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openProductModal() {
+            document.getElementById('product-form').reset();
+            document.getElementById('edit-id').value = '';
+            document.getElementById('productModal').style.display = 'flex';
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').style.display = 'none';
+        }
+
+        function editProduct(id) {
+            const p = getProductById(id);
+            document.getElementById('edit-id').value = p.id;
+            document.getElementById('p-name').value = p.name;
+            document.getElementById('p-cat').value = p.category;
+            document.getElementById('p-price').value = p.price;
+            document.getElementById('p-old-price').value = p.originalPrice;
+            document.getElementById('p-img').value = p.image;
+            document.getElementById('productModal').style.display = 'flex';
+        }
+
+        function deleteProduct(id) {
+            if (confirm("Are you sure you want to delete this product?")) {
+                let products = getProducts();
+                products = products.filter(p => p.id !== id);
+                localStorage.setItem('yatri_products', JSON.stringify(products));
+                renderAdminProducts();
+            }
+        }
+
+        document.getElementById('product-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            let products = getProducts();
+            
+            const pData = {
+                id: id ? parseInt(id) : Date.now(),
+                name: document.getElementById('p-name').value,
+                category: document.getElementById('p-cat').value,
+                price: parseInt(document.getElementById('p-price').value),
+                originalPrice: parseInt(document.getElementById('p-old-price').value),
+                image: document.getElementById('p-img').value,
+                description: "New product added via admin panel.",
+                rating: 5.0,
+                reviews: 0,
+                isTrending: false,
+                features: ["Durable", "Stylish"]
+            };
+
+            if (id) {
+                const index = products.findIndex(p => p.id === parseInt(id));
+                products[index] = pData;
+            } else {
+                products.push(pData);
+            }
+
+            localStorage.setItem('yatri_products', JSON.stringify(products));
+            closeProductModal();
+            renderAdminProducts();
+        });
+
+        document.addEventListener('DOMContentLoaded', renderAdminProducts);
+    </script>
+</body>
+</html>

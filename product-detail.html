@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Detail | Yatri Luggege</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .detail-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            margin-top: 50px;
+        }
+        .product-gallery img {
+            width: 100%;
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+        }
+        .product-meta h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+        .product-meta .category {
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: block;
+        }
+        .price-box {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .price-box .current {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+        .price-box .old {
+            font-size: 20px;
+            text-decoration: line-through;
+            color: var(--text-light);
+        }
+        .description {
+            margin: 30px 0;
+            font-size: 16px;
+            color: var(--text-light);
+        }
+        .feature-list {
+            margin: 30px 0;
+        }
+        .feature-list li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .feature-list i {
+            color: var(--success);
+        }
+        .action-box {
+            display: flex;
+            gap: 20px;
+            margin-top: 40px;
+        }
+        .quantity-input {
+            width: 80px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        @media (max-width: 768px) {
+            .detail-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="index.html" class="logo">Yatri <span>Luggege</span></a>
+                <div class="nav-icons">
+                    <a href="cart.html" class="cart-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count">0</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container section-padding">
+        <div class="detail-container" id="product-detail">
+            <!-- Loaded via JS -->
+        </div>
+    </div>
+
+    <script src="js/db.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+            const detailContainer = document.getElementById('product-detail');
+
+            if (!productId) {
+                window.location.href = 'products.html';
+                return;
+            }
+
+            const product = getProductById(productId);
+            if (!product) {
+                detailContainer.innerHTML = '<h2>Product not found</h2>';
+                return;
+            }
+
+            detailContainer.innerHTML = `
+                <div class="product-gallery">
+                    <img src="${product.image}" alt="${product.name}">
+                </div>
+                <div class="product-meta">
+                    <span class="category">${product.category}</span>
+                    <h1>${product.name}</h1>
+                    <div class="rating" style="color: #ffc107; margin-bottom: 20px;">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                        <span style="color: #666; margin-left: 10px;">(${product.reviews} customer reviews)</span>
+                    </div>
+                    <div class="price-box">
+                        <span class="current">${formatPrice(product.price)}</span>
+                        <span class="old">${formatPrice(product.originalPrice)}</span>
+                    </div>
+                    <p class="description">${product.description}</p>
+                    <ul class="feature-list">
+                        ${product.features.map(f => `<li><i class="fas fa-check-circle"></i> ${f}</li>`).join('')}
+                    </ul>
+                    <div class="action-box">
+                        <input type="number" value="1" min="1" class="quantity-input" id="qty">
+                        <button class="btn btn-primary" onclick="handleAddToCart()">Add to Cart</button>
+                        <button class="btn btn-secondary" onclick="handleBuyNow()">Buy Now</button>
+                    </div>
+                </div>
+            `;
+        });
+
+        function handleAddToCart() {
+            const qty = document.getElementById('qty').value;
+            const urlParams = new URLSearchParams(window.location.search);
+            addToCart(urlParams.get('id'), qty);
+            alert("Added to cart!");
+        }
+
+        function handleBuyNow() {
+            handleAddToCart();
+            window.location.href = 'cart.html';
+        }
+    </script>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo" style="color: white;">Yatri <span>Luggege</span></a>
+                    <p>Your trusted travel partner for premium quality bags and suitcases.</p>
+
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="products.html">Products</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Legal Policies</h4>
+                    <ul>
+                        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="terms-conditions.html">Terms & Conditions</a></li>
+                        <li><a href="shipping-policy.html">Shipping Policy</a></li>
+                        <li><a href="refund-policy.html">Refund Policy</a></li>
+                        <li><a href="disclaimer.html">Disclaimer</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contact Us</h4>
+                    <p><i class="fas fa-envelope"></i> info@yatri-luggege.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Yatri Luggege. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
