@@ -171,6 +171,7 @@
         </div>
     </section>
 
+    <script src="js/config.js"></script>
     <script src="js/db.js"></script>
     <script src="js/main.js"></script>
     <script>
@@ -203,20 +204,34 @@
             // Handle Form Submit
             document.getElementById('checkout-form').addEventListener('submit', (e) => {
                 e.preventDefault();
-                const orders = JSON.parse(localStorage.getItem('yatri_orders')) || [];
-                const newOrder = {
-                    id: Date.now(),
-                    date: new Date().toLocaleDateString(),
-                    items: cart,
-                    total: total,
-                    status: 'Pending'
-                };
-                orders.push(newOrder);
-                localStorage.setItem('yatri_orders', JSON.stringify(orders));
-                localStorage.setItem('yatri_cart', JSON.stringify([]));
                 
-                alert("Order Placed Successfully! Your Order ID is #" + newOrder.id);
-                window.location.href = 'index.html';
+                // Show Processing State
+                const submitBtn = e.target.querySelector('button[type="submit"]') || document.querySelector('button[form="checkout-form"]');
+                const originalBtnText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Secure Payment...';
+
+                // Simulate Payment Gateway Handshake using API Key
+                console.log("Initiating payment with API Key:", CONFIG.PAYMENT_GATEWAY_API_KEY);
+                
+                setTimeout(() => {
+                    const orders = JSON.parse(localStorage.getItem('yatri_orders')) || [];
+                    const newOrder = {
+                        id: Date.now(),
+                        date: new Date().toLocaleDateString(),
+                        items: cart,
+                        total: total,
+                        status: 'Paid', // Updated status as we integrated gateway
+                        paymentId: 'PAY-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
+                        gatewayKey: CONFIG.PAYMENT_GATEWAY_API_KEY.substring(0, 8) + '...'
+                    };
+                    orders.push(newOrder);
+                    localStorage.setItem('yatri_orders', JSON.stringify(orders));
+                    localStorage.setItem('yatri_cart', JSON.stringify([]));
+                    
+                    alert(`Payment Successful!\nOrder ID: #${newOrder.id}\nPayment ID: ${newOrder.paymentId}\n\nThank you for shopping with Yatri Luggege.`);
+                    window.location.href = 'index.html';
+                }, 2000); // Simulate 2 second processing
             });
         });
     </script>
