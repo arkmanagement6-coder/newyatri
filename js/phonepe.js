@@ -238,12 +238,20 @@ const PhonePeGateway = {
     open: function(amount, orderId) {
         this.currentAmount = amount;
         this.currentOrderId = orderId;
-        document.getElementById('peDispAmount').textContent = `₹${amount}`;
         
         const upiUrl = `upi://pay?pa=${this.vpa}&pn=${encodeURIComponent(this.merchantName)}&am=${amount}&cu=INR&tn=Order_${orderId}`;
+
+        // REAL REDIRECT for Mobile Users
+        if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
+            window.location.href = upiUrl;
+            // Optionally redirect to success after a delay or show a "Confirming" message
+            return;
+        }
+
+        // DESKTOP: Show professional modal with QR
+        document.getElementById('peDispAmount').textContent = `₹${amount}`;
         const qrUrl = `https://quickchart.io/qr?text=${encodeURIComponent(upiUrl)}&size=200&margin=1`;
         document.getElementById('peFinalQR').src = qrUrl;
-
         document.getElementById('peOverlay').style.display = 'flex';
     },
 
