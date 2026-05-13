@@ -133,7 +133,9 @@
                 grid-template-columns: 1fr;
             }
             .sidebar {
-                display: none; /* In real app, make it a drawer */
+                display: block;
+                margin-bottom: 30px;
+                width: 100%;
             }
             .shop-header {
                 padding: 40px 0;
@@ -180,9 +182,7 @@
                 <div class="filter-group">
                     <h4>Categories</h4>
                     <div class="filter-options" id="category-filters">
-                        <label><input type="checkbox" value="Trolley Bags"> Trolley Bags</label>
                         <label><input type="checkbox" value="Backpacks"> Backpacks</label>
-                        <label><input type="checkbox" value="Travel Duffel Bags"> Duffel Bags</label>
                         <label><input type="checkbox" value="Laptop Bags"> Laptop Bags</label>
                     </div>
                 </div>

@@ -471,3 +471,48 @@ footer {
 .table-responsive table {
     min-width: 600px;
 }
+
+/* Yatri Luggege Brand Text Watermark */
+.product-img,
+.product-gallery,
+.category-card,
+.cart-item-img {
+    position: relative !important;
+    display: block;
+}
+
+.product-img::after,
+.product-gallery::after,
+.category-card::after {
+    content: 'Yatri Luggege';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-30deg);
+    font-size: 36px;
+    font-weight: 900;
+    color: rgba(10, 31, 68, 0.25);
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    pointer-events: none;
+    z-index: 100;
+    white-space: nowrap;
+    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.cart-item-img::after {
+    content: 'Yatri Luggege';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-30deg);
+    font-size: 12px;
+    font-weight: 900;
+    color: rgba(10, 31, 68, 0.25);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    pointer-events: none;
+    z-index: 100;
+    white-space: nowrap;
+    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+}

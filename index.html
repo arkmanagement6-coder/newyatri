@@ -271,22 +271,10 @@
                 <p>Find the perfect companion for your next trip</p>
             </div>
             <div class="category-grid">
-                <div class="category-card" onclick="location.href='products.html?category=Trolley Bags'">
-                    <img src="assets/products/trolley-1.jpg" alt="Trolley Bags">
-                    <div class="category-overlay">
-                        <h3>Trolley Bags</h3>
-                    </div>
-                </div>
                 <div class="category-card" onclick="location.href='products.html?category=Backpacks'">
                     <img src="assets/products/backpack-1.jpg" alt="Backpacks">
                     <div class="category-overlay">
                         <h3>Backpacks</h3>
-                    </div>
-                </div>
-                <div class="category-card" onclick="location.href='products.html?category=Travel Duffel Bags'">
-                    <img src="assets/products/duffel-1.jpg" alt="Duffel Bags">
-                    <div class="category-overlay">
-                        <h3>Travel Duffel Bags</h3>
                     </div>
                 </div>
                 <div class="category-card" onclick="location.href='products.html?category=Laptop Bags'">
@@ -302,8 +290,8 @@
     <section class="section-padding" style="background: var(--accent-color);">
         <div class="container">
             <div class="section-title">
-                <h2>Trending Products</h2>
-                <p>Most loved by our travelers</p>
+                <h2>Our Collection</h2>
+                <p>Explore our premium travel bags</p>
             </div>
             <div class="product-grid" id="trending-products">
                 <!-- Products loaded via JS -->
@@ -394,7 +382,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const trendingContainer = document.getElementById('trending-products');
-            const trendingProducts = getTrendingProducts();
+            const trendingProducts = getProducts().slice(0, 8); // Show up to 8 products on homepage
 
             trendingProducts.forEach(product => {
                 const card = document.createElement('div');
