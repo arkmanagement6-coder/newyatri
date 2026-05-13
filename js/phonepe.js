@@ -91,11 +91,18 @@ const PhonePeGateway = {
             <div class="phonepe-card">
                 <div class="phonepe-close" onclick="PhonePeGateway.close()">&times;</div>
                 <div class="phonepe-header">
-                    <img src="https://website-assets-fd.phonepe.com/pwa/assets/images/phonepe-logo-white.png" alt="PhonePe" style="height: 30px;">
+                    <svg viewBox="0 0 100 24" style="height: 30px; fill: white;">
+                        <path d="M12.5 0c-6.9 0-12.5 5.6-12.5 12.5s5.6 12.5 12.5 12.5 12.5-5.6 12.5-12.5-5.6-12.5-12.5-12.5zm0 21.9c-5.2 0-9.4-4.2-9.4-9.4s4.2-9.4 9.4-9.4 9.4 4.2 9.4 9.4-4.2 9.4-9.4 9.4zM50 4h-4.4v16h4.4v-6.2c0-2.1 1.2-3.4 3.1-3.4 1.8 0 2.9 1.1 2.9 3.1v6.5h4.4v-7.1c0-4.1-2.4-6.4-5.6-6.4-2.5 0-4.2 1.2-5.1 3.1h-.1v-2.6h-4.4v16h4.4v-6.2c0-2.1 1.2-3.4 3.1-3.4 1.8 0 2.9 1.1 2.9 3.1v6.5h4.4v-7.1c0-4.1-2.4-6.4-5.6-6.4-2.5 0-4.2 1.2-5.1 3.1V4z"/>
+                        <text x="30" y="18" font-family="Arial" font-weight="bold" font-size="16" fill="white">PhonePe</text>
+                    </svg>
                 </div>
                 <div class="phonepe-body">
                     <p style="color: #666; margin-bottom: 5px;">Paying to ${this.merchantName}</p>
                     <div class="phonepe-amount" id="peAmount">₹0</div>
+                    
+                    <div style="margin-bottom: 20px; font-size: 12px; color: #22c55e; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                        <i class="fas fa-shield-alt"></i> Securely Connected (API: ${CONFIG.PAYMENT_GATEWAY_API_KEY.substring(0,8)}...)
+                    </div>
                     
                     <div id="desktopUI">
                         <div class="qr-container">
@@ -122,13 +129,15 @@ const PhonePeGateway = {
         this.currentAmount = amount;
         this.currentOrderId = orderId;
         
+        console.log("PhonePe Gateway Initialized with Key:", CONFIG.PAYMENT_GATEWAY_API_KEY);
+        
         document.getElementById('peAmount').textContent = `₹${amount}`;
         
         // UPI Intent for Mobile
         const upiUrl = `upi://pay?pa=${this.vpa}&pn=${encodeURIComponent(this.merchantName)}&am=${amount}&cu=INR&tn=Order_${orderId}`;
         
-        // QR Code for Desktop (using QR Server API)
-        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiUrl)}`;
+        // QR Code for Desktop (using QuickChart API - More reliable)
+        const qrUrl = `https://quickchart.io/qr?text=${encodeURIComponent(upiUrl)}&size=250&margin=1`;
         document.getElementById('peQR').src = qrUrl;
 
         // Toggle UI based on device
