@@ -91,7 +91,7 @@ const PhonePeGateway = {
             <div class="phonepe-card">
                 <div class="phonepe-close" onclick="PhonePeGateway.close()">&times;</div>
                 <div class="phonepe-header">
-                    <img src="https://www.phonepe.com/en/assets/images/phonepe-logo.png" alt="PhonePe" style="height: 30px; filter: brightness(0) invert(1);">
+                    <img src="https://website-assets-fd.phonepe.com/pwa/assets/images/phonepe-logo-white.png" alt="PhonePe" style="height: 30px;">
                 </div>
                 <div class="phonepe-body">
                     <p style="color: #666; margin-bottom: 5px;">Paying to ${this.merchantName}</p>
@@ -127,8 +127,8 @@ const PhonePeGateway = {
         // UPI Intent for Mobile
         const upiUrl = `upi://pay?pa=${this.vpa}&pn=${encodeURIComponent(this.merchantName)}&am=${amount}&cu=INR&tn=Order_${orderId}`;
         
-        // QR Code for Desktop (using Google Charts API)
-        const qrUrl = `https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=${encodeURIComponent(upiUrl)}`;
+        // QR Code for Desktop (using QR Server API)
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiUrl)}`;
         document.getElementById('peQR').src = qrUrl;
 
         // Toggle UI based on device
