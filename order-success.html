@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Successful | Yatri Luggege</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .success-container {
+            max-width: 600px;
+            margin: 100px auto;
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+        .success-icon {
+            font-size: 80px;
+            color: #22c55e;
+            margin-bottom: 30px;
+            animation: scaleIn 0.5s ease-out;
+        }
+        @keyframes scaleIn {
+            0% { transform: scale(0); }
+            80% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .order-id {
+            background: #f8f9fa;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 18px;
+            margin: 20px 0;
+            display: inline-block;
+        }
+        .btn-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="index.html" class="logo">Yatri <span>Luggege</span></a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="success-container">
+            <i class="fas fa-check-circle success-icon"></i>
+            <h1>Payment Successful!</h1>
+            <p>Thank you for your purchase. Your order has been placed and is being processed.</p>
+            
+            <div class="order-id" id="displayOrderId">#ORD123456789</div>
+            
+            <p style="color: #666; font-size: 14px;">A confirmation email has been sent to your registered address.</p>
+
+            <div class="btn-group">
+                <a href="index.html" class="btn btn-primary">Continue Shopping</a>
+                <a href="products.html" class="btn" style="background: #eee;">View More Products</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('id');
+            if (orderId) {
+                document.getElementById('displayOrderId').textContent = '#' + orderId;
+            }
+        });
+    </script>
+
+    <footer style="margin-top: 100px;">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 Yatri Luggege. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

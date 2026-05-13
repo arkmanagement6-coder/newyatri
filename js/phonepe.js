@@ -108,8 +108,9 @@ const PhonePeGateway = {
                         <button class="phonepe-btn" onclick="PhonePeGateway.openApp()">Pay via PhonePe App</button>
                     </div>
 
-                    <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee;">
-                        <button class="phonepe-btn" style="background: #22c55e;" onclick="PhonePeGateway.simulateSuccess()">I have paid</button>
+                    <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee; display: flex; gap: 10px;">
+                        <button class="phonepe-btn" style="background: #22c55e; flex: 1;" onclick="PhonePeGateway.simulateSuccess()">I have paid</button>
+                        <button class="phonepe-btn" style="background: #ef4444; flex: 1;" onclick="PhonePeGateway.simulateFailure()">Cancel</button>
                     </div>
                 </div>
             </div>
@@ -161,7 +162,15 @@ const PhonePeGateway = {
         this.close();
     },
 
-    onSuccess: null
+    simulateFailure: function() {
+        if (this.onFailure) {
+            this.onFailure("Payment cancelled by user.");
+        }
+        this.close();
+    },
+
+    onSuccess: null,
+    onFailure: null
 };
 
 // Initialize

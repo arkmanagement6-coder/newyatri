@@ -240,8 +240,13 @@
                     localStorage.setItem('yatri_orders', JSON.stringify(orders));
                     localStorage.setItem('yatri_cart', JSON.stringify([]));
                     
-                    alert("Payment Successful! Order ID: " + newOrder.id);
-                    window.location.href = 'index.html';
+                    window.location.href = `order-success.html?id=${orderId}`;
+                };
+
+                PhonePeGateway.onFailure = (errorMessage) => {
+                    alert(errorMessage);
+                    btn.innerHTML = 'Place Order';
+                    btn.style.background = 'var(--secondary-color)';
                 };
 
                 PhonePeGateway.open(total, orderId);
