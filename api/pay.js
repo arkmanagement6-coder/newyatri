@@ -22,7 +22,7 @@ export default async function handler(req, res) {
         const SALT_INDEX = 1;
         // IMPORTANT: You MUST enter your exact PhonePe Merchant ID below.
         // It usually looks like a business name (e.g., YATRILUGGEGEONLINE).
-        const MERCHANT_ID = "ENTER_YOUR_MERCHANT_ID_HERE"; 
+        const MERCHANT_ID = "M23P2N630SNVS";
         const API_ENDPOINT = "https://api.phonepe.com/apis/hermes/pg/v1/pay";
 
         // Get the host for the redirect URL
