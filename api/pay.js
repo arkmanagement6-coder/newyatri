@@ -1,5 +1,3 @@
-const crypto = require('crypto');
-
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method Not Allowed' });
@@ -12,69 +10,68 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Missing required parameters' });
         }
 
-        // Configuration
-        // IMPORTANT: The Sandbox environment MUST use the exact testing credentials below.
-        // Your key (cab34e32-8fb5-4d6d-94be-7bcccc16c8cb) is likely a PRODUCTION key.
-        // To use your key, you MUST use the Production API endpoint AND your Production Merchant ID.
+        // --- PHONEPE V2 PRODUCTION CREDENTIALS ---
+        const CLIENT_ID = "SU2605131450590093051231";
+        const CLIENT_SECRET = "cab34e32-8fb5-4d6d-94be-7bcccc16c8cb";
         
-        // --- PRODUCTION CREDENTIALS ---
-        const SALT_KEY = "cab34e32-8fb5-4d6d-94be-7bcccc16c8cb"; // Your provided live key
-        const SALT_INDEX = 1;
-        // IMPORTANT: You MUST enter your exact PhonePe Merchant ID below.
-        // It usually looks like a business name (e.g., YATRILUGGEGEONLINE).
-        const MERCHANT_ID = "M23P2N630SNVS";
-        const API_ENDPOINT = "https://api.phonepe.com/apis/hermes/pg/v1/pay";
+        // Step 1: Get OAuth Token
+        const tokenParams = new URLSearchParams();
+        tokenParams.append('client_id', CLIENT_ID);
+        tokenParams.append('client_secret', CLIENT_SECRET);
+        tokenParams.append('client_version', '1');
+        tokenParams.append('grant_type', 'client_credentials');
 
-        // Get the host for the redirect URL
+        const tokenResponse = await fetch("https://api.phonepe.com/apis/identity-manager/v1/oauth/token", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: tokenParams.toString()
+        });
+
+        const tokenData = await tokenResponse.json();
+
+        if (!tokenResponse.ok || !tokenData.access_token) {
+            console.error("PhonePe Token Error:", tokenData);
+            return res.status(401).json({ error: 'Failed to authenticate with PhonePe', details: tokenData });
+        }
+
+        const accessToken = tokenData.access_token;
+
+        // Step 2: Initialize Payment Session
         const host = req.headers.host || 'localhost:3000';
         const protocol = host.includes('localhost') ? 'http' : 'https';
         const redirectUrl = `${protocol}://${host}/order-success.html?id=${orderId}`;
 
-        // Construct Payload
+        // PhonePe V2 Checkout Payload
         const payload = {
-            merchantId: MERCHANT_ID,
-            merchantTransactionId: orderId,
-            merchantUserId: "MUID" + Date.now(),
-            amount: Math.round(amount * 100), // PhonePe expects amount in paise (integers)
-            redirectUrl: redirectUrl,
-            redirectMode: "REDIRECT",
-            callbackUrl: redirectUrl,
-            mobileNumber: mobileNumber || "9999999999",
-            paymentInstrument: {
-                type: "PAY_PAGE"
+            merchantOrderId: orderId,
+            amount: Math.round(amount * 100), // paise
+            paymentFlow: {
+                type: "PG_CHECKOUT",
+                merchantUrls: {
+                    redirectUrl: redirectUrl
+                }
             }
         };
 
-        // Encode payload
-        const base64Payload = Buffer.from(JSON.stringify(payload)).toString('base64');
-
-        // Calculate Checksum (SHA256(base64Payload + "/pg/v1/pay" + saltKey) + "###" + saltIndex)
-        const stringToSign = base64Payload + "/pg/v1/pay" + SALT_KEY;
-        const sha256 = crypto.createHash('sha256').update(stringToSign).digest('hex');
-        const checksum = sha256 + "###" + SALT_INDEX;
-
-        // Make request to PhonePe
-        const response = await fetch(API_ENDPOINT, {
+        const checkoutResponse = await fetch("https://api.phonepe.com/apis/pg/checkout/v2/pay", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-VERIFY': checksum,
-                'accept': 'application/json'
+                'Authorization': `O-Bearer ${accessToken}`
             },
-            body: JSON.stringify({
-                request: base64Payload
-            })
+            body: JSON.stringify(payload)
         });
 
-        const data = await response.json();
+        const checkoutData = await checkoutResponse.json();
 
-        if (data.success && data.data && data.data.instrumentResponse && data.data.instrumentResponse.redirectInfo) {
-            return res.status(200).json({ url: data.data.instrumentResponse.redirectInfo.url });
+        if (checkoutResponse.ok && checkoutData.redirectUrl) {
+            // Return the redirect URL to the frontend
+            return res.status(200).json({ url: checkoutData.redirectUrl });
         } else {
-            console.error("PhonePe API Error:", data);
-            // Send the actual PhonePe error message back to the frontend
-            const phonepeErrorMsg = data.message || 'Payment initiation failed on PhonePe servers';
-            return res.status(400).json({ error: phonepeErrorMsg, details: data });
+            console.error("PhonePe Checkout Error:", checkoutData);
+            return res.status(400).json({ error: checkoutData.message || 'Payment initiation failed', details: checkoutData });
         }
     } catch (error) {
         console.error("Backend Error:", error);
