@@ -79,7 +79,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             ${renderRating(product.rating)} 
                             <span style="color: #666; font-size: 12px;">(${product.reviews})</span>
                         </div>
-                        <button class="btn btn-primary" style="width: 100%" onclick="addToCart(${product.id}, 1)">Add to Cart</button>
+                        <div style="display: flex; gap: 10px; width: 100%;">
+                            <button class="btn btn-primary" style="flex: 1;" onclick="addToCart(${product.id}, 1)">Add to Cart</button>
+                            <button class="btn btn-secondary" style="flex: 1;" onclick="buyNow(${product.id}, 1)">Buy Now</button>
+                        </div>
                     </div>
                 `;
                 productDisplay.appendChild(card);

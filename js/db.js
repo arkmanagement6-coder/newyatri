@@ -150,6 +150,12 @@ function addToCart(productId, quantity = 1) {
     updateCartCount();
 }
 
+// Buy Now
+function buyNow(productId, quantity = 1) {
+    addToCart(productId, quantity);
+    window.location.href = 'checkout.html';
+}
+
 // Update Cart Count UI
 function updateCartCount() {
     const cart = JSON.parse(localStorage.getItem('yatri_cart')) || [];
