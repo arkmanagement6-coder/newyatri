@@ -155,7 +155,6 @@
 
     <script src="js/config.js"></script>
     <script src="js/db.js"></script>
-    <script src="js/phonepe.js"></script>
     <script src="js/main.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -185,16 +184,15 @@
             totalEl.textContent = formatPrice(total);
 
             // Handle Form Submit
-            document.getElementById('checkout-form').addEventListener('submit', (e) => {
+            document.getElementById('checkout-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
                 // Show Processing State
                 const btn = e.target.querySelector('button[type="submit"]') || document.querySelector('button[form="checkout-form"]');
                 const originalBtnText = btn.innerHTML;
                 btn.disabled = true;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Secure Payment...';
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initializing Secure Payment...';
 
-                // PhonePe Payment Gateway Integration
                 const orderId = 'ORD' + Date.now();
                 const customerInfo = {
                     name: document.getElementById('name').value,
@@ -202,40 +200,58 @@
                     phone: document.getElementById('phone').value
                 };
 
-                PhonePeGateway.onSuccess = (paymentData) => {
-                    const orders = JSON.parse(localStorage.getItem('yatri_orders')) || [];
-                    const newOrder = {
-                        id: orderId,
-                        date: new Date().toLocaleString(),
-                        items: cart,
-                        total: total,
-                        customer: customerInfo,
-                        address: document.getElementById('address').value,
-                        city: document.getElementById('city').value,
-                        pincode: document.getElementById('pincode').value,
-                        status: 'Paid',
-                        paymentId: paymentData.paymentId,
-                        gateway: 'PhonePe'
-                    };
-                    
-                    orders.push(newOrder);
-                    localStorage.setItem('yatri_orders', JSON.stringify(orders));
-                    localStorage.setItem('yatri_cart', JSON.stringify([]));
-                    
-                    window.location.href = `order-success.html?id=${orderId}`;
+                // Save order as pending in localStorage
+                const orders = JSON.parse(localStorage.getItem('yatri_orders')) || [];
+                const newOrder = {
+                    id: orderId,
+                    date: new Date().toLocaleString(),
+                    items: cart,
+                    total: total,
+                    customer: customerInfo,
+                    address: document.getElementById('address').value,
+                    city: document.getElementById('city').value,
+                    pincode: document.getElementById('pincode').value,
+                    status: 'Pending Payment',
+                    gateway: 'PhonePe'
                 };
-
-                PhonePeGateway.onFailure = (errorMessage) => {
-                    alert(errorMessage);
-                    btn.innerHTML = 'Place Order';
-                    btn.style.background = 'var(--secondary-color)';
-                };
-
-                PhonePeGateway.open(total, orderId);
                 
-                // Update button state while waiting
-                btn.innerHTML = 'Waiting for Payment...';
-                btn.style.background = '#5f259f'; // PhonePe Purple
+                orders.push(newOrder);
+                localStorage.setItem('yatri_orders', JSON.stringify(orders));
+
+                try {
+                    // Call Vercel Serverless Function
+                    const response = await fetch('/api/pay', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            amount: total,
+                            orderId: orderId,
+                            mobileNumber: customerInfo.phone
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok && data.url) {
+                        // Clear cart because order is initiated
+                        localStorage.setItem('yatri_cart', JSON.stringify([]));
+                        
+                        btn.innerHTML = 'Redirecting to PhonePe...';
+                        btn.style.background = '#5f259f'; // PhonePe Purple
+                        
+                        // Redirect to Official PhonePe Gateway
+                        window.location.href = data.url;
+                    } else {
+                        throw new Error(data.error || 'Failed to initialize payment');
+                    }
+                } catch (error) {
+                    console.error('Payment Error:', error);
+                    alert("Error connecting to PhonePe Payment Gateway: " + error.message);
+                    btn.innerHTML = 'Place Order';
+                    btn.disabled = false;
+                }
             });
         });
     </script>
