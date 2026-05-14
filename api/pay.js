@@ -13,13 +13,21 @@ export default async function handler(req, res) {
         }
 
         // Configuration
-        const SALT_KEY = "cab34e32-8fb5-4d6d-94be-7bcccc16c8cb";
+        // IMPORTANT: The Sandbox environment MUST use the exact testing credentials below.
+        // Your key (cab34e32-8fb5-4d6d-94be-7bcccc16c8cb) is likely a PRODUCTION key.
+        // To use your key, you MUST use the Production API endpoint AND your Production Merchant ID.
+        
+        // --- SANDBOX (TEST) CREDENTIALS ---
+        const SALT_KEY = "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399"; 
         const SALT_INDEX = 1;
-        // Using PhonePe Sandbox environment and Merchant ID by default.
-        // For production, change MERCHANT_ID to your actual Merchant ID and 
-        // API_ENDPOINT to https://api.phonepe.com/apis/hermes/pg/v1/pay
         const MERCHANT_ID = "PGTESTPAYUAT"; 
         const API_ENDPOINT = "https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay";
+
+        // --- PRODUCTION CREDENTIALS (UNCOMMENT TO GO LIVE) ---
+        // const SALT_KEY = "cab34e32-8fb5-4d6d-94be-7bcccc16c8cb"; // Your key
+        // const SALT_INDEX = 1;
+        // const MERCHANT_ID = "YOUR_PRODUCTION_MERCHANT_ID"; // Replace with your real Merchant ID
+        // const API_ENDPOINT = "https://api.phonepe.com/apis/hermes/pg/v1/pay";
 
         // Get the host for the redirect URL
         const host = req.headers.host || 'localhost:3000';
