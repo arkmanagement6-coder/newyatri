@@ -72,7 +72,9 @@ export default async function handler(req, res) {
             return res.status(200).json({ url: data.data.instrumentResponse.redirectInfo.url });
         } else {
             console.error("PhonePe API Error:", data);
-            return res.status(400).json({ error: 'Payment initiation failed. Please check if Merchant ID is valid.', details: data });
+            // Send the actual PhonePe error message back to the frontend
+            const phonepeErrorMsg = data.message || 'Payment initiation failed on PhonePe servers';
+            return res.status(400).json({ error: phonepeErrorMsg, details: data });
         }
     } catch (error) {
         console.error("Backend Error:", error);
