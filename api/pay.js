@@ -55,11 +55,14 @@ export default async function handler(req, res) {
             }
         };
 
+        const callbackUrl = `${protocol}://${host}/api/webhook`;
+
         const checkoutResponse = await fetch("https://api.phonepe.com/apis/pg/checkout/v2/pay", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `O-Bearer ${accessToken}`
+                'Authorization': `O-Bearer ${accessToken}`,
+                'X-CALLBACK-URL': callbackUrl
             },
             body: JSON.stringify(payload)
         });

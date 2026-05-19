@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhonePe Webhook Configuration | Yatri Luggege Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .webhook-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            padding: 40px;
+            margin-top: 40px;
+        }
+        .url-box {
+            display: flex;
+            background: var(--accent-color);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px dashed var(--primary-color);
+            align-items: center;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+        .url-text {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 600;
+            color: var(--primary-color);
+            word-break: break-all;
+        }
+        .copy-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .copy-btn:hover {
+            background: var(--secondary-color);
+        }
+        .step-list {
+            margin-top: 30px;
+        }
+        .step-item {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .step-num {
+            background: var(--primary-color);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .step-details h4 {
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        .step-details p {
+            color: var(--text-light);
+            font-size: 15px;
+        }
+        .badge {
+            background: #e1f5fe;
+            color: #0288d1;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .badge-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav style="justify-content: space-between;">
+                <a href="admin.html" class="logo">Yatri <span>Admin</span></a>
+                <a href="admin.html" class="btn btn-primary" style="padding: 10px 20px;"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="section-padding">
+        <div class="container" style="max-width: 900px;">
+            <div class="section-title" style="text-align: left;">
+                <h2>PhonePe Webhook Integration</h2>
+                <p>Register your callback endpoint to enable secure real-time status updates.</p>
+            </div>
+
+            <div class="webhook-card">
+                <h3><i class="fas fa-link" style="color: var(--secondary-color);"></i> Dynamic Webhook Endpoint URL</h3>
+                <p style="color: var(--text-light); margin-top: 10px;">Copy the production URL below and insert it into your PhonePe merchant developer console or provide it to your account manager.</p>
+                
+                <div class="url-box">
+                    <span class="url-text" id="webhookUrl">https://new-yatri-luggege.vercel.app/api/webhook</span>
+                    <button class="copy-btn" onclick="copyWebhook()">
+                        <i class="far fa-copy"></i> <span id="btnText">Copy URL</span>
+                    </button>
+                </div>
+
+                <div class="step-list">
+                    <h3><i class="fas fa-cogs" style="color: var(--primary-color);"></i> Step-by-Step Setup Guide</h3>
+                    <div class="step-item" style="margin-top: 20px;">
+                        <div class="step-num">1</div>
+                        <div class="step-details">
+                            <h4>Log into PhonePe Business Portal</h4>
+                            <p>Go to the official <a href="https://business.phonepe.com" target="_blank" style="color: var(--primary-color); font-weight: 600; text-decoration: underline;">PhonePe Business Dashboard</a> and log in with your primary merchant credentials.</p>
+                        </div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-num">2</div>
+                        <div class="step-details">
+                            <h4>Navigate to Developer Settings</h4>
+                            <p>Click on <strong>Developer Settings</strong> on the sidebar menu, then select <strong>Webhooks / Callback Configurations</strong>.</p>
+                        </div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-num">3</div>
+                        <div class="step-details">
+                            <h4>Register the Endpoint</h4>
+                            <p>Click <strong>Add New Webhook</strong>, select the transaction state changes (e.g. <code>PAYMENT_SUCCESS</code>, <code>PAYMENT_ERROR</code>), and paste the copied URL above into the Endpoint input.</p>
+                        </div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-num">4</div>
+                        <div class="step-details">
+                            <h4>Dynamic Connection Header <span class="badge badge-success">Enabled</span></h4>
+                            <p>Our payment system automatically sends the <code>X-CALLBACK-URL</code> header containing this endpoint directly in every PhonePe V2 Checkout transaction request to ensure optimal connection redundancy.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-bottom" style="border: none; padding: 0;">
+                <p>&copy; 2026 Yatri Luggege. Administrative Panel.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Set dynamic URL matching host domain
+        document.addEventListener("DOMContentLoaded", () => {
+            const host = window.location.host || "new-yatri-luggege.vercel.app";
+            const protocol = window.location.protocol === "https:" ? "https" : "http";
+            document.getElementById("webhookUrl").textContent = `${protocol}://${host}/api/webhook`;
+        });
+
+        function copyWebhook() {
+            const text = document.getElementById("webhookUrl").textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const btnText = document.getElementById("btnText");
+                btnText.textContent = "Copied!";
+                setTimeout(() => {
+                    btnText.textContent = "Copy URL";
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
