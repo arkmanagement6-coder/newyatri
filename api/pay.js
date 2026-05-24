@@ -12,10 +12,10 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Missing required parameters' });
         }
 
-        // --- EASEBUZZ PRODUCTION CREDENTIALS ---
+        // --- EASEBUZZ CREDENTIALS ---
         const MERCH_KEY = "Y2T9CT9Z7";
         const SALT_KEY = "1MWJFXQ0A";
-        const ENV = "prod"; // 'prod' or 'test'
+        const ENV = "test"; // Set to 'prod' for production, 'test' for sandbox/testing
         const BASE_URL = ENV === 'prod' ? 'https://pay.easebuzz.in' : 'https://testpay.easebuzz.in';
 
         // Extract and fallback values for mandatory fields
