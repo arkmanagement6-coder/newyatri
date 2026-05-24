@@ -15,7 +15,7 @@ export default async function handler(req, res) {
         // --- EASEBUZZ CREDENTIALS ---
         const MERCH_KEY = "Y2T9CT9Z7";
         const SALT_KEY = "1MWJFXQ0A";
-        const ENV = "test"; // Set to 'prod' for production, 'test' for sandbox/testing
+        const ENV = "prod"; // Set to 'prod' for production (live payments), 'test' for sandbox
         const BASE_URL = ENV === 'prod' ? 'https://pay.easebuzz.in' : 'https://testpay.easebuzz.in';
 
         // Extract and fallback values for mandatory fields
