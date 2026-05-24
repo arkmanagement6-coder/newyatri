@@ -158,6 +158,27 @@
     <script src="js/main.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Handle Payment Failure Redirect recovery
+            const urlParams = new URLSearchParams(window.location.search);
+            const paymentStatus = urlParams.get('status');
+            const failedOrderId = urlParams.get('id');
+            
+            if (paymentStatus === 'failed' && failedOrderId) {
+                const currentCart = JSON.parse(localStorage.getItem('yatri_cart')) || [];
+                if (currentCart.length === 0) {
+                    const orders = JSON.parse(localStorage.getItem('yatri_orders')) || [];
+                    const failedOrder = orders.find(o => o.id === failedOrderId);
+                    if (failedOrder) {
+                        localStorage.setItem('yatri_cart', JSON.stringify(failedOrder.items));
+                        failedOrder.status = 'Payment Failed';
+                        localStorage.setItem('yatri_orders', JSON.stringify(orders));
+                    }
+                }
+                alert("Payment was unsuccessful or cancelled. Your cart has been restored. Please try again.");
+                // Clean the URL parameters so the alert doesn't keep popping up
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
             const cart = JSON.parse(localStorage.getItem('yatri_cart')) || [];
             if (cart.length === 0) {
                 window.location.href = 'index.html';
@@ -189,7 +210,6 @@
                 
                 // Show Processing State
                 const btn = e.target.querySelector('button[type="submit"]') || document.querySelector('button[form="checkout-form"]');
-                const originalBtnText = btn.innerHTML;
                 btn.disabled = true;
                 btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initializing Secure Payment...';
 
@@ -212,7 +232,7 @@
                     city: document.getElementById('city').value,
                     pincode: document.getElementById('pincode').value,
                     status: 'Pending Payment',
-                    gateway: 'PhonePe'
+                    gateway: 'Easebuzz'
                 };
                 
                 orders.push(newOrder);
@@ -228,7 +248,9 @@
                         body: JSON.stringify({
                             amount: total,
                             orderId: orderId,
-                            mobileNumber: customerInfo.phone
+                            mobileNumber: customerInfo.phone,
+                            name: customerInfo.name,
+                            email: customerInfo.email
                         })
                     });
 
@@ -238,17 +260,17 @@
                         // Clear cart because order is initiated
                         localStorage.setItem('yatri_cart', JSON.stringify([]));
                         
-                        btn.innerHTML = 'Redirecting to PhonePe...';
-                        btn.style.background = '#5f259f'; // PhonePe Purple
+                        btn.innerHTML = 'Redirecting to Easebuzz...';
+                        btn.style.background = '#e8501c'; // Easebuzz Orange
                         
-                        // Redirect to Official PhonePe Gateway
+                        // Redirect to Official Easebuzz Gateway
                         window.location.href = data.url;
                     } else {
                         throw new Error(data.error || 'Failed to initialize payment');
                     }
                 } catch (error) {
                     console.error('Payment Error:', error);
-                    alert("Error connecting to PhonePe Payment Gateway: " + error.message);
+                    alert("Error connecting to Easebuzz Payment Gateway: " + error.message);
                     btn.innerHTML = 'Place Order';
                     btn.disabled = false;
                 }
