@@ -6,50 +6,55 @@ export default async function handler(req, res) {
     }
 
     try {
-        const body = req.body || {};
+        const { response } = req.body;
 
-        if (!body || Object.keys(body).length === 0) {
+        if (!response) {
             return res.status(400).json({ error: 'Missing response payload' });
         }
 
-        // --- EASEBUZZ PRODUCTION CREDENTIALS ---
-        const SALT_KEY = "1MWJFXQ0A";
+        // --- PHONEPE PRODUCTION V2 CREDENTIALS ---
+        const SALT_KEY = "cab34e32-8fb5-4d6d-94be-7bcccc16c8cb";
+        const SALT_INDEX = 1;
 
-        // Reverse hash verification:
-        // salt|status|udf10|udf9|udf8|udf7|udf6|udf5|udf4|udf3|udf2|udf1|email|firstname|productinfo|amount|txnid|key
-        const sequence = [
-            'status', 'udf10', 'udf9', 'udf8', 'udf7', 'udf6', 'udf5', 'udf4', 'udf3', 'udf2', 'udf1',
-            'email', 'firstname', 'productinfo', 'amount', 'txnid', 'key'
-        ];
-        
-        let hashString = SALT_KEY + '|' + sequence.map(key => (body[key] || '').toString().trim()).join('|');
-        const calculatedHash = crypto.createHash('sha512').update(hashString).digest('hex');
+        // Compute checksum: SHA256(Base64_Response + Salt_Key) + "###" + Salt_Index
+        const dataToHash = response + SALT_KEY;
+        const hash = crypto.createHash('sha256').update(dataToHash).digest('hex');
+        const expectedVerifyHeader = `${hash}###${SALT_INDEX}`;
 
-        const receivedHash = (body.hash || '').toLowerCase();
-        const isValid = calculatedHash.toLowerCase() === receivedHash;
+        const receivedVerifyHeader = req.headers['x-verify'] || req.headers['X-VERIFY'];
 
-        if (!isValid) {
-            console.warn("Easebuzz Webhook Signature Verification Failed! Calculated:", calculatedHash, "Received:", receivedHash);
+        if (!receivedVerifyHeader) {
+            console.warn("Missing X-VERIFY Header in callback");
+            return res.status(400).json({ error: 'Missing X-VERIFY header' });
+        }
+
+        if (receivedVerifyHeader !== expectedVerifyHeader) {
+            console.warn("Signature Verification Failed! Expected:", expectedVerifyHeader, "Received:", receivedVerifyHeader);
             return res.status(401).json({ error: 'Signature verification failed' });
         }
 
-        console.log("Verified Easebuzz Webhook Payload:", body);
+        // Decode Base64 Payload
+        const decodedString = Buffer.from(response, 'base64').toString('utf-8');
+        const decodedPayload = JSON.parse(decodedString);
+
+        console.log("Verified Callback Payload:", decodedPayload);
 
         // Extract relevant fields
-        const { status, txnid, amount, easepayid } = body;
+        const { success, code, data } = decodedPayload;
 
-        if (status === 'success') {
-            console.log(`Payment SUCCESS via Webhook for Order: ${txnid}, Easebuzz ID: ${easepayid}, Amount: ${amount} INR`);
-            // Custom business logic here (e.g. update order status to Paid in database)
+        if (success && code === 'PAYMENT_SUCCESS') {
+            const { transactionId, merchantId, amount, paymentState } = data;
+            console.log(`Payment SUCCESS for Order: ${transactionId}, Amount: ${amount / 100} INR`);
+            // Standard acknowledgment. In a database setup, update order status to 'Paid' here.
         } else {
-            console.log(`Payment FAILED/CANCELLED via Webhook for Order: ${txnid}, Status: ${status}`);
+            console.log(`Payment FAILED/PENDING for Order: ${data?.transactionId || 'unknown'}`);
         }
 
-        // Return 200 OK acknowledgment strictly required by Easebuzz to prevent retries
+        // Return 200 OK acknowledgement as strictly required by PhonePe to prevent retries
         return res.status(200).json({ success: true, message: 'Callback received and verified successfully' });
 
     } catch (error) {
-        console.error("Easebuzz Webhook Verification Error:", error);
+        console.error("Webhook Verification Error:", error);
         return res.status(500).json({ error: 'Internal Server Error', message: error.message });
     }
 }

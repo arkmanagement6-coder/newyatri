@@ -1,100 +1,80 @@
-import crypto from 'crypto';
-
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
     try {
-        const { amount, orderId, mobileNumber, name, email: customerEmail } = req.body;
+        const { amount, orderId, mobileNumber } = req.body;
 
         if (!amount || !orderId) {
             return res.status(400).json({ error: 'Missing required parameters' });
         }
 
-        // --- EASEBUZZ CREDENTIALS ---
-        const MERCH_KEY = "Y2T9CT9Z7";
-        const SALT_KEY = "1MWJFXQ0A";
-        const ENV = "prod"; // Set to 'prod' for production (live payments), 'test' for sandbox
-        const BASE_URL = ENV === 'prod' ? 'https://pay.easebuzz.in' : 'https://testpay.easebuzz.in';
-
-        // Extract and fallback values for mandatory fields
-        const firstname = name ? name.split(' ')[0].trim() : 'Customer';
-        const email = customerEmail ? customerEmail.trim() : 'customer@example.com';
-        const phone = mobileNumber ? mobileNumber.trim() : '9999999999';
+        // --- PHONEPE V2 PRODUCTION CREDENTIALS ---
+        const CLIENT_ID = "SU2605131450590093051231";
+        const CLIENT_SECRET = "cab34e32-8fb5-4d6d-94be-7bcccc16c8cb";
         
-        // Host details for absolute callbacks
-        const host = req.headers.host || 'localhost:3000';
-        const protocol = host.includes('localhost') ? 'http' : 'https';
-        const callbackUrl = `${protocol}://${host}/api/response`;
+        // Step 1: Get OAuth Token
+        const tokenParams = new URLSearchParams();
+        tokenParams.append('client_id', CLIENT_ID);
+        tokenParams.append('client_secret', CLIENT_SECRET);
+        tokenParams.append('client_version', '1');
+        tokenParams.append('grant_type', 'client_credentials');
 
-        // Format amount string (Easebuzz standard requires 2 decimal places or valid decimal format)
-        const formattedAmount = Number(amount).toFixed(2);
-
-        // Generate SHA-512 Hash
-        // Sequence: key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5|udf6|udf7|udf8|udf9|udf10|salt
-        const hashSequence = [
-            MERCH_KEY,
-            orderId,
-            formattedAmount,
-            "Yatri Luggage Order",
-            firstname,
-            email,
-            "", "", "", "", "", "", "", "", "", "" // udf1 to udf10
-        ];
-        
-        const hashString = hashSequence.join('|') + '|' + SALT_KEY;
-        const hash = crypto.createHash('sha512').update(hashString).digest('hex');
-
-        // Build URL-encoded request payload
-        const payload = new URLSearchParams({
-            key: MERCH_KEY,
-            txnid: orderId,
-            amount: formattedAmount,
-            firstname: firstname,
-            email: email,
-            phone: phone,
-            productinfo: "Yatri Luggage Order",
-            surl: callbackUrl,
-            furl: callbackUrl,
-            hash: hash,
-            udf1: "",
-            udf2: "",
-            udf3: "",
-            udf4: "",
-            udf5: "",
-            udf6: "",
-            udf7: "",
-            udf8: "",
-            udf9: "",
-            udf10: ""
-        });
-
-        // Call Easebuzz Initiate Link API
-        const response = await fetch(`${BASE_URL}/payment/initiateLink`, {
+        const tokenResponse = await fetch("https://api.phonepe.com/apis/identity-manager/v1/oauth/token", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: payload.toString()
+            body: tokenParams.toString()
         });
 
-        const textResponse = await response.text();
-        let result;
-        try {
-            result = JSON.parse(textResponse);
-        } catch (e) {
-            console.error("Failed to parse Easebuzz Response JSON:", textResponse);
-            return res.status(502).json({ error: 'Invalid response from Easebuzz', details: textResponse });
+        const tokenData = await tokenResponse.json();
+
+        if (!tokenResponse.ok || !tokenData.access_token) {
+            console.error("PhonePe Token Error:", tokenData);
+            return res.status(401).json({ error: 'Failed to authenticate with PhonePe', details: tokenData });
         }
 
-        if (response.ok && result.status === 1) {
-            // Return the full checkout URL to the frontend
-            const checkoutUrl = `${BASE_URL}/pay/${result.data}`;
-            return res.status(200).json({ url: checkoutUrl });
+        const accessToken = tokenData.access_token;
+
+        // Step 2: Initialize Payment Session
+        const host = req.headers.host || 'localhost:3000';
+        const protocol = host.includes('localhost') ? 'http' : 'https';
+        const redirectUrl = `${protocol}://${host}/order-success.html?id=${orderId}`;
+
+        // PhonePe V2 Checkout Payload
+        const payload = {
+            merchantOrderId: orderId,
+            amount: Math.round(amount * 100), // paise
+            paymentFlow: {
+                type: "PG_CHECKOUT",
+                merchantUrls: {
+                    redirectUrl: redirectUrl
+                }
+            }
+        };
+
+        const callbackUrl = `${protocol}://${host}/api/webhook`;
+
+        const checkoutResponse = await fetch("https://api.phonepe.com/apis/pg/checkout/v2/pay", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `O-Bearer ${accessToken}`,
+                'X-CALLBACK-URL': callbackUrl
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const checkoutData = await checkoutResponse.json();
+
+        if (checkoutResponse.ok && checkoutData.redirectUrl) {
+            // Return the redirect URL to the frontend
+            return res.status(200).json({ url: checkoutData.redirectUrl });
         } else {
-            console.error("Easebuzz Checkout Initiation Error:", result);
-            return res.status(400).json({ error: result.error_desc || result.data || 'Payment initiation failed', details: result });
+            console.error("PhonePe Checkout Error:", checkoutData);
+            return res.status(400).json({ error: checkoutData.message || 'Payment initiation failed', details: checkoutData });
         }
     } catch (error) {
         console.error("Backend Error:", error);
