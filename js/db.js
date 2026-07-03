@@ -148,6 +148,22 @@ function addToCart(productId, quantity = 1) {
     
     localStorage.setItem('yatri_cart', JSON.stringify(cart));
     updateCartCount();
+
+    // Meta Pixel AddToCart event
+    try {
+        if (typeof fbq === 'function' && product) {
+            fbq('track', 'AddToCart', {
+                content_name: product.name,
+                content_category: product.category || 'Luggage',
+                content_ids: [String(productId)],
+                content_type: 'product',
+                value: product.price * parseInt(quantity),
+                currency: 'INR'
+            });
+        }
+    } catch (e) {
+        console.error('Meta Pixel AddToCart Error:', e);
+    }
 }
 
 // Buy Now

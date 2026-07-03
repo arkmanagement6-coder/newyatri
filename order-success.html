@@ -43,6 +43,23 @@
             margin-top: 40px;
         }
     </style>
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '947390424330740');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=947390424330740&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
 </head>
 <body>
     <header>
@@ -54,16 +71,41 @@
     </header>
 
     <div class="container">
-        <div class="success-container">
-            <i class="fas fa-check-circle success-icon"></i>
-            <h1>Payment Successful!</h1>
-            <p>Thank you for your purchase. Your order has been placed and is being processed.</p>
+        <div class="success-container" id="statusContainer">
+            <i class="fas fa-spinner fa-spin success-icon" id="statusIcon" style="color: #5f259f;"></i>
+            <h1 id="statusTitle">Verifying Payment...</h1>
+            <p id="statusMessage">Please wait while we verify your payment status with PhonePe.</p>
             
-            <div class="order-id" id="displayOrderId">#ORD123456789</div>
-            
-            <p style="color: #666; font-size: 14px;">A confirmation email has been sent to your registered address.</p>
+            <div class="order-id" id="displayOrderId">Checking...</div>
 
-            <div class="btn-group">
+            <!-- Customer & Order details block (shown only on success) -->
+            <div id="orderDetailsBlock" style="display: none; margin-top: 30px; text-align: left; border-top: 1px solid #eee; padding-top: 20px; font-size: 15px;">
+                <h3 style="margin-bottom: 15px; color: var(--primary-color);">Order & Shipping Details</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div>
+                        <p style="margin-bottom: 8px;"><strong>Customer Name:</strong> <span id="customerName">-</span></p>
+                        <p style="margin-bottom: 8px;"><strong>Phone Number:</strong> <span id="customerPhone">-</span></p>
+                        <p style="margin-bottom: 8px;"><strong>Email Address:</strong> <span id="customerEmail">-</span></p>
+                    </div>
+                    <div style="background: #fdfdfd; border: 1px solid #eee; padding: 12px; border-radius: 8px;">
+                        <p style="margin-bottom: 4px;"><strong>Shipping Address:</strong></p>
+                        <p id="shippingFullAddress" style="color: #555; line-height: 1.4;">-</p>
+                    </div>
+                </div>
+
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <span><strong>Amount Paid:</strong></span>
+                    <span id="paidAmount" style="font-size: 18px; font-weight: 700; color: #22c55e;">₹0</span>
+                </div>
+
+                <div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 12px; border-radius: 8px; display: flex; align-items: center; gap: 10px; color: #1e3a8a; margin-bottom: 10px;">
+                    <i class="fas fa-shipping-fast" style="color: #3b82f6; font-size: 18px;"></i>
+                    <span>Your product will be delivered within <strong>7 days</strong>.</span>
+                </div>
+            </div>
+            
+            <div class="btn-group" id="btnGroup" style="display: none;">
                 <a href="index.html" class="btn btn-primary">Continue Shopping</a>
                 <a href="products.html" class="btn" style="background: #eee;">View More Products</a>
             </div>
@@ -74,11 +116,141 @@
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const orderId = urlParams.get('id');
-            if (orderId) {
-                document.getElementById('displayOrderId').textContent = '#' + orderId;
+            const displayOrderId = document.getElementById('displayOrderId');
+            const statusIcon = document.getElementById('statusIcon');
+            const statusTitle = document.getElementById('statusTitle');
+            const statusMessage = document.getElementById('statusMessage');
+            const btnGroup = document.getElementById('btnGroup');
+
+            if (!orderId) {
+                statusIcon.className = "fas fa-exclamation-circle success-icon";
+                statusIcon.style.color = "#ef4444";
+                statusTitle.textContent = "Order ID Missing";
+                statusMessage.textContent = "No valid Order ID was specified in the URL.";
+                displayOrderId.style.display = 'none';
+                btnGroup.style.display = 'flex';
+                return;
             }
+
+            displayOrderId.textContent = '#' + orderId;
+
+            let attempts = 0;
+            const maxAttempts = 5;
+            const retryDelay = 2000; // 2 seconds
+
+            async function verifyPayment() {
+                try {
+                    console.log(`Checking payment status for order: ${orderId}, attempt: ${attempts + 1}`);
+                    const res = await fetch(`/api/status?id=${orderId}`);
+                    const data = await res.json();
+
+                    if (res.ok && data.state === 'COMPLETED') {
+                        console.log("Payment verification successful (COMPLETED).");
+                        
+                        // Update UI to success
+                        statusIcon.className = "fas fa-check-circle success-icon";
+                        statusIcon.style.color = "#22c55e";
+                        statusTitle.textContent = "Payment Successful!";
+                        statusMessage.innerHTML = 'Thank you for your purchase. Your order has been placed and is being processed.<br><span style="color: #666; font-size: 14px; display: block; margin-top: 10px;">A confirmation email has been sent to your registered address.</span>';
+                        btnGroup.style.display = 'flex';
+
+                        // Populate and show order details
+                        let orderTotal = 0;
+                        try {
+                            const orders = JSON.parse(localStorage.getItem('yatri_orders')) || [];
+                            const currentOrder = orders.find(o => o.id === orderId);
+                            if (currentOrder) {
+                                orderTotal = currentOrder.total;
+                                document.getElementById('customerName').textContent = currentOrder.customer.name;
+                                document.getElementById('customerPhone').textContent = currentOrder.customer.phone;
+                                document.getElementById('customerEmail').textContent = currentOrder.customer.email;
+                                
+                                const fullAddr = `${currentOrder.address}, ${currentOrder.city} - ${currentOrder.pincode}`;
+                                document.getElementById('shippingFullAddress').textContent = fullAddr;
+                                
+                                // Format price
+                                const formattedPrice = new Intl.NumberFormat('en-IN', {
+                                    style: 'currency',
+                                    currency: 'INR',
+                                    maximumFractionDigits: 0
+                                }).format(currentOrder.total);
+                                
+                                document.getElementById('paidAmount').textContent = formattedPrice;
+                                document.getElementById('orderDetailsBlock').style.display = 'block';
+                            }
+                        } catch (e) {
+                            console.error('Error rendering order details:', e);
+                        }
+
+                        // Track Meta Pixel Purchase Event
+                        try {
+                            if (typeof fbq === 'function') {
+                                console.log("Firing Meta Pixel Purchase Event...");
+                                const orders = JSON.parse(localStorage.getItem('yatri_orders')) || [];
+                                const currentOrder = orders.find(o => o.id === orderId);
+                                if (currentOrder) {
+                                    fbq('track', 'Purchase', {
+                                        value: currentOrder.total,
+                                        currency: 'INR',
+                                        content_ids: (currentOrder.items || []).map(item => String(item.id)),
+                                        content_type: 'product',
+                                        contents: (currentOrder.items || []).map(item => ({
+                                            id: String(item.id),
+                                            quantity: item.quantity,
+                                            item_price: item.price
+                                        }))
+                                    });
+                                    console.log("Pixel Purchase Event fired with details:", currentOrder);
+                                } else {
+                                    // Fallback if order details are not found in localStorage
+                                    fbq('track', 'Purchase', {
+                                        currency: 'INR'
+                                    });
+                                    console.log("Pixel Purchase Event fired with fallback (no details in localStorage).");
+                                }
+                            } else {
+                                console.warn("Meta Pixel (fbq) is not loaded or defined in window scope. Ad-blocker might be blocking it.");
+                            }
+                        } catch (e) {
+                            console.error('Meta Pixel Purchase Error:', e);
+                        }
+                    } else if (res.ok && data.state === 'PENDING' && attempts < maxAttempts) {
+                        attempts++;
+                        console.log(`Payment status is PENDING. Retrying status check in ${retryDelay}ms...`);
+                        statusMessage.textContent = `Verifying payment status with PhonePe (Attempt ${attempts}/${maxAttempts})...`;
+                        setTimeout(verifyPayment, retryDelay);
+                    } else {
+                        console.warn(`Payment verification failed or timed out. State: ${data.state || 'UNKNOWN'}`);
+                        
+                        // Payment failed or is pending/cancelled
+                        statusIcon.className = "fas fa-times-circle success-icon";
+                        statusIcon.style.color = "#ef4444";
+                        statusTitle.textContent = "Payment Verification Failed";
+                        statusMessage.innerHTML = `We could not verify your payment status (Current state: <strong>${data.state || 'UNKNOWN'}</strong>). <br>If your payment failed, you can try checking out again. If money was deducted, it will be refunded or you can contact support.`;
+                        
+                        // Modify buttons for failed case
+                        btnGroup.innerHTML = `
+                            <a href="checkout.html" class="btn btn-primary">Try Checkout Again</a>
+                            <a href="index.html" class="btn" style="background: #eee;">Go to Home</a>
+                        `;
+                        btnGroup.style.display = 'flex';
+                    }
+                } catch (error) {
+                    console.error("Error verifying payment status:", error);
+                    statusIcon.className = "fas fa-exclamation-triangle success-icon";
+                    statusIcon.style.color = "#f59e0b";
+                    statusTitle.textContent = "Verification Error";
+                    statusMessage.textContent = "There was a network error while verifying your payment status. Please refresh the page to try again.";
+                    btnGroup.style.display = 'flex';
+                }
+            }
+
+            // Start the verification polling process
+            verifyPayment();
         });
     </script>
+
+
 
     <footer style="margin-top: 100px;">
         <div class="container">
