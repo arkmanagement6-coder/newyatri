@@ -244,7 +244,7 @@
                     city: document.getElementById('city').value,
                     pincode: document.getElementById('pincode').value,
                     status: 'Pending Payment',
-                    gateway: 'PhonePe'
+                    gateway: 'Easebuzz'
                 };
                 
                 orders.push(newOrder);
@@ -260,7 +260,10 @@
                         body: JSON.stringify({
                             amount: total,
                             orderId: orderId,
-                            mobileNumber: customerInfo.phone
+                            name: customerInfo.name,
+                            email: customerInfo.email,
+                            mobileNumber: customerInfo.phone,
+                            productInfo: 'Yatri Luggage Order'
                         })
                     });
 
@@ -270,17 +273,17 @@
                         // Clear cart because order is initiated
                         localStorage.setItem('yatri_cart', JSON.stringify([]));
                         
-                        btn.innerHTML = 'Redirecting to PhonePe...';
-                        btn.style.background = '#5f259f'; // PhonePe Purple
+                        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Redirecting to Easebuzz Payment...';
+                        btn.style.background = 'var(--primary-color)';
                         
-                        // Redirect to Official PhonePe Gateway
+                        // Redirect to Official Easebuzz Gateway
                         window.location.href = data.url;
                     } else {
                         throw new Error(data.error || 'Failed to initialize payment');
                     }
                 } catch (error) {
                     console.error('Payment Error:', error);
-                    alert("Error connecting to PhonePe Payment Gateway: " + error.message);
+                    alert("Error connecting to Easebuzz Payment Gateway: " + error.message);
                     btn.innerHTML = 'Place Order';
                     btn.disabled = false;
                 }

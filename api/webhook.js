@@ -6,55 +6,43 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { response } = req.body;
+        const data = req.body || {};
+        const { txnid, status, amount, email, firstname, productinfo, hash } = data;
 
-        if (!response) {
-            return res.status(400).json({ error: 'Missing response payload' });
+        if (!txnid || !hash) {
+            return res.status(400).json({ error: 'Missing required webhook payload' });
         }
 
-        // --- PHONEPE PRODUCTION V2 CREDENTIALS ---
-        const SALT_KEY = "cab34e32-8fb5-4d6d-94be-7bcccc16c8cb";
-        const SALT_INDEX = 1;
+        const KEY = "Y2T9CT9Z7";
+        const SALT = "1MWJFXQ0A";
 
-        // Compute checksum: SHA256(Base64_Response + Salt_Key) + "###" + Salt_Index
-        const dataToHash = response + SALT_KEY;
-        const hash = crypto.createHash('sha256').update(dataToHash).digest('hex');
-        const expectedVerifyHeader = `${hash}###${SALT_INDEX}`;
+        // Verify Easebuzz Hash
+        // Sequence: salt|status|udf10|udf9|udf8|udf7|udf6|udf5|udf4|udf3|udf2|udf1|email|firstname|productinfo|amount|txnid|key
+        const uEmail = (email || '').trim();
+        const uFirstname = (firstname || '').trim();
+        const uProductinfo = (productinfo || '').trim();
+        const uAmount = parseFloat(amount || 0).toFixed(2);
 
-        const receivedVerifyHeader = req.headers['x-verify'] || req.headers['X-VERIFY'];
+        const hashSequence = `${SALT}|${status}|||||||||||${uEmail}|${uFirstname}|${uProductinfo}|${uAmount}|${txnid}|${KEY}`;
+        const expectedHash = crypto.createHash('sha512').update(hashSequence).digest('hex');
 
-        if (!receivedVerifyHeader) {
-            console.warn("Missing X-VERIFY Header in callback");
-            return res.status(400).json({ error: 'Missing X-VERIFY header' });
-        }
-
-        if (receivedVerifyHeader !== expectedVerifyHeader) {
-            console.warn("Signature Verification Failed! Expected:", expectedVerifyHeader, "Received:", receivedVerifyHeader);
+        if (hash.toLowerCase() !== expectedHash.toLowerCase()) {
+            console.warn(`Easebuzz Webhook Signature Verification Failed! Expected: ${expectedHash}, Received: ${hash}`);
             return res.status(401).json({ error: 'Signature verification failed' });
         }
 
-        // Decode Base64 Payload
-        const decodedString = Buffer.from(response, 'base64').toString('utf-8');
-        const decodedPayload = JSON.parse(decodedString);
+        console.log(`Easebuzz Webhook Verified for Transaction: ${txnid}, Status: ${status}`);
 
-        console.log("Verified Callback Payload:", decodedPayload);
-
-        // Extract relevant fields
-        const { success, code, data } = decodedPayload;
-
-        if (success && code === 'PAYMENT_SUCCESS') {
-            const { transactionId, merchantId, amount, paymentState } = data;
-            console.log(`Payment SUCCESS for Order: ${transactionId}, Amount: ${amount / 100} INR`);
-            // Standard acknowledgment. In a database setup, update order status to 'Paid' here.
+        if (status === 'success') {
+            console.log(`Payment SUCCESS for Order: ${txnid}, Amount: ${amount} INR`);
         } else {
-            console.log(`Payment FAILED/PENDING for Order: ${data?.transactionId || 'unknown'}`);
+            console.log(`Payment ${status.toUpperCase()} for Order: ${txnid}`);
         }
 
-        // Return 200 OK acknowledgement as strictly required by PhonePe to prevent retries
-        return res.status(200).json({ success: true, message: 'Callback received and verified successfully' });
+        return res.status(200).json({ success: true, message: 'Easebuzz Webhook received and verified successfully' });
 
     } catch (error) {
-        console.error("Webhook Verification Error:", error);
+        console.error("Easebuzz Webhook Error:", error);
         return res.status(500).json({ error: 'Internal Server Error', message: error.message });
     }
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhonePe Webhook Configuration | Yatri Luggege Admin</title>
+    <title>Easebuzz Webhook Configuration | Yatri Luggege Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
     <style>
@@ -118,13 +118,13 @@
     <section class="section-padding">
         <div class="container" style="max-width: 900px;">
             <div class="section-title" style="text-align: left;">
-                <h2>PhonePe Webhook Integration</h2>
+                <h2>Easebuzz Webhook Integration</h2>
                 <p>Register your callback endpoint to enable secure real-time status updates.</p>
             </div>
 
             <div class="webhook-card">
                 <h3><i class="fas fa-link" style="color: var(--secondary-color);"></i> Dynamic Webhook Endpoint URL</h3>
-                <p style="color: var(--text-light); margin-top: 10px;">Copy the production URL below and insert it into your PhonePe merchant developer console or provide it to your account manager.</p>
+                <p style="color: var(--text-light); margin-top: 10px;">Copy the production URL below and insert it into your Easebuzz merchant developer portal.</p>
                 
                 <div class="url-box">
                     <span class="url-text" id="webhookUrl">https://new-yatri-luggege.vercel.app/api/webhook</span>
@@ -138,8 +138,8 @@
                     <div class="step-item" style="margin-top: 20px;">
                         <div class="step-num">1</div>
                         <div class="step-details">
-                            <h4>Log into PhonePe Business Portal</h4>
-                            <p>Go to the official <a href="https://business.phonepe.com" target="_blank" style="color: var(--primary-color); font-weight: 600; text-decoration: underline;">PhonePe Business Dashboard</a> and log in with your primary merchant credentials.</p>
+                            <h4>Log into Easebuzz Portal</h4>
+                            <p>Go to the official <a href="https://easy.easebuzz.in" target="_blank" style="color: var(--primary-color); font-weight: 600; text-decoration: underline;">Easebuzz Portal</a> and log in with your primary merchant credentials.</p>
                         </div>
                     </div>
 
@@ -147,7 +147,7 @@
                         <div class="step-num">2</div>
                         <div class="step-details">
                             <h4>Navigate to Developer Settings</h4>
-                            <p>Click on <strong>Developer Settings</strong> on the sidebar menu, then select <strong>Webhooks / Callback Configurations</strong>.</p>
+                            <p>Click on <strong>Developer / Webhook Settings</strong> on the sidebar menu.</p>
                         </div>
                     </div>
 
@@ -155,15 +155,15 @@
                         <div class="step-num">3</div>
                         <div class="step-details">
                             <h4>Register the Endpoint</h4>
-                            <p>Click <strong>Add New Webhook</strong>, select the transaction state changes (e.g. <code>PAYMENT_SUCCESS</code>, <code>PAYMENT_ERROR</code>), and paste the copied URL above into the Endpoint input.</p>
+                            <p>Click <strong>Add Webhook URL</strong>, select transaction event updates, and paste the copied URL above into the endpoint input.</p>
                         </div>
                     </div>
 
                     <div class="step-item">
                         <div class="step-num">4</div>
                         <div class="step-details">
-                            <h4>Dynamic Connection Header <span class="badge badge-success">Enabled</span></h4>
-                            <p>Our payment system automatically sends the <code>X-CALLBACK-URL</code> header containing this endpoint directly in every PhonePe V2 Checkout transaction request to ensure optimal connection redundancy.</p>
+                            <h4>Dynamic Connection Response <span class="badge badge-success">Enabled</span></h4>
+                            <p>Our payment system automatically sends the <code>surl</code> and <code>furl</code> callback endpoints directly in every Easebuzz payment initiation request.</p>
                         </div>
                     </div>
                 </div>
