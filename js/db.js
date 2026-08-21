@@ -1,7 +1,24 @@
 // Local Storage Database for Yatri Luggege
 
 const defaultProducts = [
-
+    {
+        id: 7,
+        name: "Demo Test Bag ( ₹1 Payment Test )",
+        category: "Test Demo",
+        price: 1,
+        originalPrice: 999,
+        image: "assets/products/backpack-2.jpg",
+        rating: 5.0,
+        reviews: 100,
+        isTrending: true,
+        features: ["Live Payment Demo", "Instant Test ₹1", "Easebuzz Gateway"],
+        description: `
+<div class="detailed-description" style="margin-top: 20px;">
+    <h3 style="margin-top: 15px; color: var(--primary-color);">Overview</h3>
+    <p style="margin-bottom: 15px;">Demo Test Product created specifically for testing live payment checkout with ₹1 amount.</p>
+</div>
+`
+    },
     {
         id: 2,
         name: "Classic Leather Laptop Bag",
@@ -62,13 +79,11 @@ const defaultProducts = [
 </div>
 `
     },
-
-
     {
         id: 6,
-        name: "Urban Daily Backpack",
+        name: "Urban Daily Backpack ( ₹1 Demo )",
         category: "Backpacks",
-        price: 1299,
+        price: 1,
         originalPrice: 1599,
         image: "assets/products/backpack-2.jpg",
         rating: 4.4,
@@ -78,19 +93,7 @@ const defaultProducts = [
         description: `
 <div class="detailed-description">
     <h3>Overview</h3>
-    <p>The Urban Daily Backpack combines minimalist design with modern functionality. Featuring a hidden anti-theft pocket, a convenient USB charging port, and organized compartments for your tech essentials, it's the perfect choice for college students and city commuters who value style and security.</p>
-    
-    <h3>Key Features</h3>
-    <ul>
-        <li><strong>USB Charging Port:</strong> Built-in external USB port with an interior charging cable.</li>
-        <li><strong>Anti-Theft Hidden Pocket:</strong> Discreet zippered pocket on the back panel for valuables.</li>
-        <li><strong>Padded Tech Sleeve:</strong> Safely stores laptops up to 15.6 inches and a tablet.</li>
-        <li><strong>Water-Repellent Material:</strong> High-density oxford fabric protects against light rain.</li>
-    </ul>
-
-    <h3>Specifications</h3>
-    <p><strong>Dimensions:</strong> 45cm x 30cm x 15cm | <strong>Weight:</strong> 0.7 kg</p>
-    <p><strong>Material:</strong> Oxford fabric | <strong>Capacity:</strong> 20 Liters | <strong>Warranty:</strong> 1-year limited</p>
+    <p>The Urban Daily Backpack combines minimalist design with modern functionality. Discounted to ₹1 for live payment testing.</p>
 </div>
 `
     }
@@ -98,9 +101,9 @@ const defaultProducts = [
 
 // Initialize Database
 function initDB() {
-    if (!localStorage.getItem('yatri_products') || !localStorage.getItem('yatri_v4')) {
+    if (!localStorage.getItem('yatri_products') || !localStorage.getItem('yatri_v6')) {
         localStorage.setItem('yatri_products', JSON.stringify(defaultProducts));
-        localStorage.setItem('yatri_v4', 'true');
+        localStorage.setItem('yatri_v6', 'true');
     }
 
     if (!localStorage.getItem('yatri_cart')) {
@@ -113,7 +116,7 @@ function initDB() {
 
 // Get All Products
 function getProducts() {
-    return JSON.parse(localStorage.getItem('yatri_products'));
+    return JSON.parse(localStorage.getItem('yatri_products')) || defaultProducts;
 }
 
 // Get Product By ID
@@ -130,13 +133,13 @@ function getTrendingProducts() {
 
 // Add to Cart
 function addToCart(productId, quantity = 1) {
-    const cart = JSON.parse(localStorage.getItem('yatri_cart'));
+    const cart = JSON.parse(localStorage.getItem('yatri_cart')) || [];
     const product = getProductById(productId);
     
     const existingItem = cart.find(item => item.id === parseInt(productId));
     if (existingItem) {
         existingItem.quantity += parseInt(quantity);
-    } else {
+    } else if (product) {
         cart.push({
             id: product.id,
             name: product.name,
