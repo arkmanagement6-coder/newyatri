@@ -13,11 +13,11 @@ export default async function handler(req, res) {
         }
 
         // --- EASEBUZZ CREDENTIALS ---
-        const KEY = "Y2T9CT9Z7";
-        const SALT = "1MWJFXQ0A";
+        const KEY = process.env.EASEBUZZ_KEY || "Y2T9CT9Z7";
+        const SALT = process.env.EASEBUZZ_SALT || "1MWJFXQ0A";
         
-        // Environment URL (Can switch between testpay.easebuzz.in and pay.easebuzz.in)
-        const EASEBUZZ_BASE_URL = process.env.EASEBUZZ_BASE_URL || "https://testpay.easebuzz.in";
+        // Environment URL (Live Production: pay.easebuzz.in | Test Sandbox: testpay.easebuzz.in)
+        const EASEBUZZ_BASE_URL = process.env.EASEBUZZ_BASE_URL || "https://pay.easebuzz.in";
 
         const host = req.headers.host || 'localhost:3000';
         const protocol = host.includes('localhost') ? 'http' : 'https';
@@ -82,7 +82,7 @@ export default async function handler(req, res) {
         const initiateData = await initiateResponse.json();
 
         if (initiateResponse.ok && initiateData.status === 1 && initiateData.data) {
-            // Correct Hosted Checkout URL: https://testpay.easebuzz.in/pay/<access_key>
+            // Live Hosted Checkout URL: https://pay.easebuzz.in/pay/<access_key>
             const redirectUrl = `${EASEBUZZ_BASE_URL}/pay/${initiateData.data}`;
             return res.status(200).json({ url: redirectUrl, access_key: initiateData.data });
         } else {

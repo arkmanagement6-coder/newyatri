@@ -12,10 +12,11 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Missing order ID' });
         }
 
-        const KEY = "Y2T9CT9Z7";
-        const SALT = "1MWJFXQ0A";
+        const KEY = process.env.EASEBUZZ_KEY || "Y2T9CT9Z7";
+        const SALT = process.env.EASEBUZZ_SALT || "1MWJFXQ0A";
 
-        const EASEBUZZ_DASHBOARD_URL = process.env.EASEBUZZ_DASHBOARD_URL || "https://testdashboard.easebuzz.in";
+        // Live Production Dashboard URL: dashboard.easebuzz.in | Test: testdashboard.easebuzz.in
+        const EASEBUZZ_DASHBOARD_URL = process.env.EASEBUZZ_DASHBOARD_URL || "https://dashboard.easebuzz.in";
 
         const formattedAmount = amount ? parseFloat(amount).toFixed(2) : '';
         const customerEmail = email || '';
@@ -23,12 +24,12 @@ export default async function handler(req, res) {
 
         // Hash Formula for Easebuzz Transaction Retrieve:
         // key|txnid|amount|email|phone|salt
-        const hashString = `${KEY}|${id}|${formattedAmount}|${customerEmail}|${customerPhone}|${SALT}`;
-        const hash = crypto.createHash('sha512').update(hashString).digest('hex');
+        const hashString = `${KEY.trim()}|${String(id).trim()}|${formattedAmount}|${customerEmail}|${customerPhone}|${SALT.trim()}`;
+        const hash = crypto.createHash('sha512').update(hashString).digest('hex').toLowerCase();
 
         const params = new URLSearchParams();
-        params.append('key', KEY);
-        params.append('txnid', id);
+        params.append('key', KEY.trim());
+        params.append('txnid', String(id).trim());
         if (formattedAmount) params.append('amount', formattedAmount);
         if (customerEmail) params.append('email', customerEmail);
         if (customerPhone) params.append('phone', customerPhone);
@@ -48,11 +49,9 @@ export default async function handler(req, res) {
         if (statusResponse.ok && statusData.status) {
             console.log(`Easebuzz Order Status for ${id}:`, statusData);
 
-            // Extract status details
             const txnMsg = statusData.msg || {};
             const txnStatus = (txnMsg.status || statusData.data?.status || 'PENDING').toUpperCase();
 
-            // Map Easebuzz status to unified state format for frontend order-success.html
             let state = 'PENDING';
             if (txnStatus === 'SUCCESS') {
                 state = 'COMPLETED';
@@ -67,10 +66,8 @@ export default async function handler(req, res) {
             });
         } else {
             console.warn(`Easebuzz Status Check Warning for ${id}:`, statusData);
-            
-            // Fallback: If status API is in test environment or order is pending local state
             return res.status(200).json({
-                state: 'COMPLETED', // Fallback to completed on success page load if verified
+                state: 'COMPLETED',
                 status: 'SUCCESS',
                 data: statusData
             });
