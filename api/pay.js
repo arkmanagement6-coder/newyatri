@@ -82,7 +82,8 @@ export default async function handler(req, res) {
         const initiateData = await initiateResponse.json();
 
         if (initiateResponse.ok && initiateData.status === 1 && initiateData.data) {
-            const redirectUrl = `${EASEBUZZ_BASE_URL}/payment/pay/${initiateData.data}`;
+            // Correct Hosted Checkout URL: https://testpay.easebuzz.in/pay/<access_key>
+            const redirectUrl = `${EASEBUZZ_BASE_URL}/pay/${initiateData.data}`;
             return res.status(200).json({ url: redirectUrl, access_key: initiateData.data });
         } else {
             console.error("Easebuzz Initiate Payment Error:", initiateData);
