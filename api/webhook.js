@@ -23,10 +23,21 @@ export default async function handler(req, res) {
         const uProductinfo = (productinfo || '').trim();
         const uAmount = parseFloat(amount || 0).toFixed(2);
 
-        const hashSequence = `${SALT}|${status}|||||||||||${uEmail}|${uFirstname}|${uProductinfo}|${uAmount}|${txnid}|${KEY}`;
-        const expectedHash = crypto.createHash('sha512').update(hashSequence).digest('hex');
+        const hashArray = [
+            SALT.trim(),
+            status.trim(),
+            '', '', '', '', '', '', '', '', '', '', // 10 empty UDFs (udf10 down to udf1)
+            uEmail,
+            uFirstname,
+            uProductinfo,
+            uAmount,
+            String(txnid).trim(),
+            KEY.trim()
+        ];
 
-        if (hash.toLowerCase() !== expectedHash.toLowerCase()) {
+        const expectedHash = crypto.createHash('sha512').update(hashArray.join('|')).digest('hex').toLowerCase();
+
+        if (hash.toLowerCase() !== expectedHash) {
             console.warn(`Easebuzz Webhook Signature Verification Failed! Expected: ${expectedHash}, Received: ${hash}`);
             return res.status(401).json({ error: 'Signature verification failed' });
         }

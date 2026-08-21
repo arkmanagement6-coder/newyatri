@@ -23,22 +23,34 @@ export default async function handler(req, res) {
         const protocol = host.includes('localhost') ? 'http' : 'https';
 
         const formattedAmount = parseFloat(amount).toFixed(2);
-        const firstname = (name || 'Customer').trim().split(' ')[0];
+        const firstname = (name || 'Customer').trim().split(' ')[0] || 'Customer';
         const customerEmail = (email || 'customer@yatriluggage.com').trim();
         const customerPhone = (mobileNumber || '9999999999').trim();
-        const itemInfo = productInfo || 'Yatri Luggage Order';
+        const itemInfo = (productInfo || 'Yatri Luggage Order').trim();
+        const cleanOrderId = String(orderId).trim();
 
         const surl = `${protocol}://${host}/api/response`;
         const furl = `${protocol}://${host}/api/response`;
 
-        // Easebuzz Hash Sequence for Initiate Payment:
+        // Easebuzz Hash Sequence for Initiate Payment (17 elements joined by 16 pipes):
         // key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5|udf6|udf7|udf8|udf9|udf10|salt
-        const hashString = `${KEY}|${orderId}|${formattedAmount}|${itemInfo}|${firstname}|${customerEmail}||||||||||${SALT}`;
-        const hash = crypto.createHash('sha512').update(hashString).digest('hex');
+        const hashArray = [
+            KEY.trim(),
+            cleanOrderId,
+            formattedAmount,
+            itemInfo,
+            firstname,
+            customerEmail,
+            '', '', '', '', '', '', '', '', '', '', // 10 empty UDF fields (udf1 through udf10)
+            SALT.trim()
+        ];
+        
+        const hashString = hashArray.join('|');
+        const hash = crypto.createHash('sha512').update(hashString).digest('hex').toLowerCase();
 
         const params = new URLSearchParams();
-        params.append('key', KEY);
-        params.append('txnid', orderId);
+        params.append('key', KEY.trim());
+        params.append('txnid', cleanOrderId);
         params.append('amount', formattedAmount);
         params.append('productinfo', itemInfo);
         params.append('firstname', firstname);
@@ -47,6 +59,16 @@ export default async function handler(req, res) {
         params.append('surl', surl);
         params.append('furl', furl);
         params.append('hash', hash);
+        params.append('udf1', '');
+        params.append('udf2', '');
+        params.append('udf3', '');
+        params.append('udf4', '');
+        params.append('udf5', '');
+        params.append('udf6', '');
+        params.append('udf7', '');
+        params.append('udf8', '');
+        params.append('udf9', '');
+        params.append('udf10', '');
 
         const initiateResponse = await fetch(`${EASEBUZZ_BASE_URL}/payment/initiateLink`, {
             method: 'POST',
