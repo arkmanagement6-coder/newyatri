@@ -5,8 +5,9 @@ export default async function handler(req, res) {
     const data = req.body || req.query || {};
     const { txnid, status, amount, email, firstname, productinfo, hash } = data;
 
-    const KEY = "Y2T9CT9Z7";
-    const SALT = "1MWJFXQ0A";
+    // --- EASEBUZZ LIVE PRODUCTION CREDENTIALS ---
+    const KEY = process.env.EASEBUZZ_KEY || "KF3N4LF6E5";
+    const SALT = process.env.EASEBUZZ_SALT || "A4RWRB1HMF";
 
     const orderId = txnid || 'unknown';
 

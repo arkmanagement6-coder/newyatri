@@ -13,8 +13,9 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Missing required webhook payload' });
         }
 
-        const KEY = "Y2T9CT9Z7";
-        const SALT = "1MWJFXQ0A";
+        // --- EASEBUZZ LIVE PRODUCTION CREDENTIALS ---
+        const KEY = process.env.EASEBUZZ_KEY || "KF3N4LF6E5";
+        const SALT = process.env.EASEBUZZ_SALT || "A4RWRB1HMF";
 
         // Verify Easebuzz Hash
         // Sequence: salt|status|udf10|udf9|udf8|udf7|udf6|udf5|udf4|udf3|udf2|udf1|email|firstname|productinfo|amount|txnid|key

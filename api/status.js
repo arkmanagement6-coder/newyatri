@@ -12,10 +12,11 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Missing order ID' });
         }
 
-        const KEY = process.env.EASEBUZZ_KEY || "Y2T9CT9Z7";
-        const SALT = process.env.EASEBUZZ_SALT || "1MWJFXQ0A";
+        // --- EASEBUZZ LIVE PRODUCTION CREDENTIALS ---
+        const KEY = process.env.EASEBUZZ_KEY || "KF3N4LF6E5";
+        const SALT = process.env.EASEBUZZ_SALT || "A4RWRB1HMF";
 
-        // Live Production Dashboard URL: dashboard.easebuzz.in | Test: testdashboard.easebuzz.in
+        // Live Production Dashboard URL: dashboard.easebuzz.in
         const EASEBUZZ_DASHBOARD_URL = process.env.EASEBUZZ_DASHBOARD_URL || "https://dashboard.easebuzz.in";
 
         const formattedAmount = amount ? parseFloat(amount).toFixed(2) : '';

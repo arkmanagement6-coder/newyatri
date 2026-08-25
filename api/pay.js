@@ -12,11 +12,11 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Missing required parameters' });
         }
 
-        // --- EASEBUZZ CREDENTIALS ---
-        const KEY = process.env.EASEBUZZ_KEY || "Y2T9CT9Z7";
-        const SALT = process.env.EASEBUZZ_SALT || "1MWJFXQ0A";
+        // --- EASEBUZZ LIVE PRODUCTION CREDENTIALS ---
+        const KEY = process.env.EASEBUZZ_KEY || "KF3N4LF6E5";
+        const SALT = process.env.EASEBUZZ_SALT || "A4RWRB1HMF";
         
-        // Environment URL (Live Production: pay.easebuzz.in | Test Sandbox: testpay.easebuzz.in)
+        // Live Production Endpoint: pay.easebuzz.in
         const EASEBUZZ_BASE_URL = process.env.EASEBUZZ_BASE_URL || "https://pay.easebuzz.in";
 
         const host = req.headers.host || 'localhost:3000';
