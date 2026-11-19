@@ -112,6 +112,54 @@
             background: linear-gradient(transparent, rgba(0,0,0,0.8));
             color: white;
         }
+        .category-overlay p {
+            font-size: 13px;
+            opacity: 0.85;
+            margin-top: 4px;
+        }
+
+        /* Home Category Filter Tabs */
+        .home-category-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 35px;
+        }
+        .home-tab-btn {
+            padding: 10px 24px;
+            border-radius: 50px;
+            border: 1.5px solid var(--primary-color);
+            background: var(--white);
+            color: var(--primary-color);
+            font-family: var(--heading-font);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .home-tab-btn:hover,
+        .home-tab-btn.active {
+            background: var(--primary-color);
+            color: var(--white);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Product Badge */
+        .product-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: #e11d48;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            z-index: 5;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
 
         /* Product Cards */
         .product-grid {
@@ -135,32 +183,55 @@
             box-shadow: var(--shadow-sm);
             transition: var(--transition);
             position: relative;
+            display: flex;
+            flex-direction: column;
         }
         .product-card:hover {
             transform: translateY(-10px);
             box-shadow: var(--shadow-lg);
         }
         .product-img {
-            height: 300px;
+            height: 280px;
             overflow: hidden;
+            background: #ffffff;
+            cursor: pointer;
         }
         .product-img img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
+        .product-img.digital-img img {
+            object-fit: contain;
+            padding: 12px;
+            background: #ffffff;
+        }
         .product-info {
             padding: 25px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
         }
         .product-category {
-            font-size: 14px;
-            color: var(--text-light);
-            margin-bottom: 5px;
+            font-size: 13px;
+            color: var(--secondary-color);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
         }
         .product-name {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 600;
             margin-bottom: 10px;
+            cursor: pointer;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .product-name:hover {
+            color: var(--secondary-color);
         }
         .product-card-description {
             font-size: 14px;
@@ -285,21 +356,10 @@
         <div class="container">
             <div class="section-title">
                 <h2>Featured Categories</h2>
-                <p>Find the perfect companion for your next trip</p>
+                <p>Explore our travel gear and digital collections</p>
             </div>
-            <div class="category-grid">
-                <div class="category-card" onclick="location.href='products.html?category=Backpacks'">
-                    <img src="assets/products/backpack-1.jpg" alt="Backpacks">
-                    <div class="category-overlay">
-                        <h3>Backpacks</h3>
-                    </div>
-                </div>
-                <div class="category-card" onclick="location.href='products.html?category=Laptop Bags'">
-                    <img src="assets/products/laptop-1.jpg" alt="Laptop Bags">
-                    <div class="category-overlay">
-                        <h3>Laptop Bags</h3>
-                    </div>
-                </div>
+            <div class="category-grid" id="featured-categories">
+                <!-- Categories loaded dynamically via JS -->
             </div>
         </div>
     </section>
@@ -308,7 +368,10 @@
         <div class="container">
             <div class="section-title">
                 <h2>Our Collection</h2>
-                <p>Explore our premium travel bags</p>
+                <p>Browse across all our categories</p>
+            </div>
+            <div class="home-category-tabs" id="home-category-tabs">
+                <!-- Category tabs loaded dynamically via JS -->
             </div>
             <div class="product-grid" id="trending-products">
                 <!-- Products loaded via JS -->
@@ -402,32 +465,92 @@
     <script src="js/main.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const categoriesGrid = document.getElementById('featured-categories');
+            const categoryTabsContainer = document.getElementById('home-category-tabs');
             const trendingContainer = document.getElementById('trending-products');
-            const trendingProducts = getProducts().slice(0, 8); // Show up to 8 products on homepage
+            const categories = getCategories();
+            let activeHomeCategory = 'All';
 
-            trendingProducts.forEach(product => {
-                const card = document.createElement('div');
-                card.className = 'product-card';
-                card.innerHTML = `
-                    <div class="product-img">
-                        <img src="${product.image}" alt="${product.name}" onclick="location.href='product-detail.html?id=${product.id}'">
-                    </div>
-                    <div class="product-info">
-                        <div class="product-category">${product.category}</div>
-                        <h3 class="product-name">${product.name}</h3>
-                        <p class="product-card-description">${product.description}</p>
-                        <div class="product-price">
-                            <span class="curr-price">${formatPrice(product.price)}</span>
-                            <span class="old-price">${formatPrice(product.originalPrice)}</span>
-                        </div>
-                        <div style="display: flex; gap: 10px; width: 100%;">
-                            <button class="btn btn-primary" style="flex: 1;" onclick="addToCart(${product.id}, 1)">Add to Cart</button>
-                            <button class="btn btn-secondary" style="flex: 1;" onclick="buyNow(${product.id}, 1)">Buy Now</button>
+            // 1. Render Featured Categories dynamically
+            if (categoriesGrid) {
+                categoriesGrid.innerHTML = categories.map(cat => `
+                    <div class="category-card" onclick="location.href='products.html?category=${encodeURIComponent(cat.name)}'">
+                        <img src="${cat.image}" alt="${cat.name}" style="${cat.name === 'Digital' ? 'object-fit: contain; background: #fff; padding: 15px;' : ''}">
+                        <div class="category-overlay">
+                            <h3>${cat.name}</h3>
+                            <p>${cat.count} ${cat.count === 1 ? 'Product' : 'Products'}</p>
                         </div>
                     </div>
-                `;
-                trendingContainer.appendChild(card);
-            });
+                `).join('');
+            }
+
+            // 2. Render Category Tabs dynamically on Home Page
+            function renderHomeTabs() {
+                if (!categoryTabsContainer) return;
+                const tabNames = ['All', ...categories.map(c => c.name)];
+                categoryTabsContainer.innerHTML = tabNames.map(name => `
+                    <button class="home-tab-btn ${activeHomeCategory === name ? 'active' : ''}" data-category="${name}">
+                        ${name === 'All' ? 'All Products' : name}
+                    </button>
+                `).join('');
+
+                categoryTabsContainer.querySelectorAll('.home-tab-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        activeHomeCategory = btn.getAttribute('data-category');
+                        renderHomeTabs();
+                        renderHomeProducts();
+                    });
+                });
+            }
+
+            // 3. Render Products for active category
+            function renderHomeProducts() {
+                if (!trendingContainer) return;
+                let products = getProducts();
+                if (activeHomeCategory !== 'All') {
+                    products = products.filter(p => p.category === activeHomeCategory);
+                }
+
+                trendingContainer.innerHTML = '';
+                if (products.length === 0) {
+                    trendingContainer.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 30px; color: var(--text-light);">No products found in this category.</p>';
+                    return;
+                }
+
+                products.forEach(product => {
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    const discountPct = product.originalPrice > product.price
+                        ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+                        : 0;
+                    const badgeLabel = product.badge || (discountPct >= 20 ? `Save ${discountPct}%` : '');
+                    const isDigital = product.category === 'Digital';
+
+                    card.innerHTML = `
+                        ${badgeLabel ? `<span class="product-badge">${badgeLabel}</span>` : ''}
+                        <div class="product-img ${isDigital ? 'digital-img' : ''}" onclick="location.href='product-detail.html?id=${product.id}'">
+                            <img src="${product.image}" alt="${product.name}">
+                        </div>
+                        <div class="product-info">
+                            <div class="product-category">${product.category}</div>
+                            <h3 class="product-name" onclick="location.href='product-detail.html?id=${product.id}'">${product.name}</h3>
+                            <p class="product-card-description">${getCardSummary(product)}</p>
+                            <div class="product-price" style="margin-top: auto;">
+                                <span class="curr-price">${formatPrice(product.price)}</span>
+                                ${product.originalPrice ? `<span class="old-price">${formatPrice(product.originalPrice)}</span>` : ''}
+                            </div>
+                            <div style="display: flex; gap: 10px; width: 100%;">
+                                <button class="btn btn-primary" style="flex: 1; padding: 10px 12px; font-size: 14px;" onclick="addToCart('${product.id}', 1)">Add to Cart</button>
+                                <button class="btn btn-secondary" style="flex: 1; padding: 10px 12px; font-size: 14px;" onclick="buyNow('${product.id}', 1)">Buy Now</button>
+                            </div>
+                        </div>
+                    `;
+                    trendingContainer.appendChild(card);
+                });
+            }
+
+            renderHomeTabs();
+            renderHomeProducts();
         });
     </script>
 </body>

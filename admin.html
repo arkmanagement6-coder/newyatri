@@ -200,11 +200,15 @@
                     <input type="text" id="p-name" required style="width: 100%; padding: 10px; border: 1px solid #ddd;">
                 </div>
                 <div class="form-group" style="margin-bottom: 15px;">
-                    <label>Category</label>
-                    <select id="p-cat" required style="width: 100%; padding: 10px; border: 1px solid #ddd;">
-                        <option value="Backpacks">Backpacks</option>
-                        <option value="Laptop Bags">Laptop Bags</option>
-                    </select>
+                    <label>Category (select existing or type any new category)</label>
+                    <input type="text" id="p-cat" list="category-suggestions" required placeholder="e.g. Digital, Backpacks, Laptop Bags" style="width: 100%; padding: 10px; border: 1px solid #ddd;">
+                    <datalist id="category-suggestions">
+                        <option value="Digital">
+                        <option value="Backpacks">
+                        <option value="Laptop Bags">
+                        <option value="Trolley Bags">
+                        <option value="Travel Duffel Bags">
+                    </datalist>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                     <div class="form-group">
@@ -247,13 +251,13 @@
             products.forEach(p => {
                 list.innerHTML += `
                     <tr>
-                        <td><img src="${p.image}" style="width: 50px; border-radius: 5px;"></td>
+                        <td><img src="${p.image}" style="width: 50px; height: 50px; object-fit: contain; border-radius: 5px; background: #fff;"></td>
                         <td>${p.name}</td>
                         <td>${p.category}</td>
                         <td>${formatPrice(p.price)}</td>
                         <td>
-                            <i class="fas fa-edit" style="color: var(--primary-color); cursor: pointer; margin-right: 15px;" onclick="editProduct(${p.id})"></i>
-                            <i class="fas fa-trash-alt" style="color: var(--error); cursor: pointer;" onclick="deleteProduct(${p.id})"></i>
+                            <i class="fas fa-edit" style="color: var(--primary-color); cursor: pointer; margin-right: 15px;" onclick="editProduct('${p.id}')"></i>
+                            <i class="fas fa-trash-alt" style="color: var(--error); cursor: pointer;" onclick="deleteProduct('${p.id}')"></i>
                         </td>
                     </tr>
                 `;
@@ -289,6 +293,7 @@
 
         function editProduct(id) {
             const p = getProductById(id);
+            if (!p) return;
             document.getElementById('edit-id').value = p.id;
             document.getElementById('p-name').value = p.name;
             document.getElementById('p-cat').value = p.category;
@@ -301,7 +306,7 @@
         function deleteProduct(id) {
             if (confirm("Are you sure you want to delete this product?")) {
                 let products = getProducts();
-                products = products.filter(p => p.id !== id);
+                products = products.filter(p => String(p.id) !== String(id));
                 localStorage.setItem('yatri_products', JSON.stringify(products));
                 renderAdminProducts();
             }
@@ -311,24 +316,26 @@
             e.preventDefault();
             const id = document.getElementById('edit-id').value;
             let products = getProducts();
-            
+            const existing = id ? products.find(p => String(p.id) === String(id)) : null;
+
             const pData = {
-                id: id ? parseInt(id) : Date.now(),
-                name: document.getElementById('p-name').value,
-                category: document.getElementById('p-cat').value,
+                ...(existing || {}),
+                id: id ? (isNaN(Number(id)) ? id : Number(id)) : Date.now(),
+                name: document.getElementById('p-name').value.trim(),
+                category: document.getElementById('p-cat').value.trim(),
                 price: parseInt(document.getElementById('p-price').value),
-                originalPrice: parseInt(document.getElementById('p-old-price').value),
-                image: document.getElementById('p-img').value,
-                description: "New product added via admin panel.",
-                rating: 5.0,
-                reviews: 0,
-                isTrending: false,
-                features: ["Durable", "Stylish"]
+                originalPrice: parseInt(document.getElementById('p-old-price').value) || parseInt(document.getElementById('p-price').value),
+                image: document.getElementById('p-img').value.trim(),
+                description: existing ? existing.description : "New product added via admin panel.",
+                rating: existing ? existing.rating : 5.0,
+                reviews: existing ? existing.reviews : 0,
+                isTrending: existing ? existing.isTrending : true,
+                features: existing ? existing.features : ["Premium Quality", "Fast Delivery"]
             };
 
             if (id) {
-                const index = products.findIndex(p => p.id === parseInt(id));
-                products[index] = pData;
+                const index = products.findIndex(p => String(p.id) === String(id));
+                if (index !== -1) products[index] = pData;
             } else {
                 products.push(pData);
             }
